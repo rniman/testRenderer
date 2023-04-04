@@ -18,6 +18,5 @@ private:
 	std::vector<CGameObject> m_gameObjects;
 	std::unique_ptr<CPlayer> m_pPlayer;
 
-	DWORD m_downKey;
 };
 

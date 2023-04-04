@@ -39,6 +39,7 @@ private:
 
 	_TCHAR m_pszFrameRate[50];
 
+	DWORD m_keyDown;
 	std::unique_ptr<CScene> m_pScene;
 
 	CGameTimer m_gameTimer;

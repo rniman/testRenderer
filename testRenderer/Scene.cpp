@@ -33,17 +33,13 @@ void CScene::CreateScene()
 	m_pPlayer = std::make_unique<CPlayer>(newCamera);
 }
 
-void CScene::SetDownKey()
-{
-	m_downKey = 0;
-	m_pPlayer->SetDirection();
-}
-
 void CScene::HandleInput(DWORD downKey)
 {
-	m_downKey |= downKey;
-
-	m_pPlayer->HandleInput(m_downKey);
+	m_pPlayer->SetDirection();
+	if (downKey)
+	{
+		m_pPlayer->HandleInput(downKey);
+	}
 }
 
 void CScene::Update(const float deltaTime)

@@ -11,6 +11,7 @@ CGameFramework::CGameFramework()
 	, m_hBitmapSelect{ nullptr }
 	, m_ptOldCursorPos{}
 	, m_pszFrameRate{}
+	, m_keyDown{}
 	, m_pScene{ nullptr }
 {
 }
@@ -85,11 +86,25 @@ void CGameFramework::DestroyObjects()
 
 void CGameFramework::HandleInput()
 {
-	static UCHAR keyBuffer[256];
-	if (GetKeyboardState(keyBuffer))
+	//static UCHAR keyBuffer[256];
 	{
-		m_pScene->SetDownKey();
-		if (keyBuffer[0x57] & 0xF0) m_pScene->HandleInput(DIR_FORWARD);
+		m_keyDown = 0;
+		
+		//if (keyBuffer[0x57] & 0xF0) m_keyDown |= DIR_FORWARD;
+		//if (keyBuffer[0x53] & 0xF0)	m_keyDown |= DIR_BACKWARD;
+		//if (keyBuffer[0x44] & 0xF0)	m_keyDown |= DIR_RIGHT;
+		//if (keyBuffer[0x41] & 0xF0)	m_keyDown |= DIR_LEFT;
+		//if (keyBuffer[0x51] & 0xF0)	m_keyDown |= DIR_UP;
+		//if (keyBuffer[0x45] & 0xF0)	m_keyDown |= DIR_DOWN;
+
+		if (GetAsyncKeyState(VK_W) & 0x8000) m_keyDown |= DIR_FORWARD;
+		if (GetAsyncKeyState(VK_S) & 0x8000) m_keyDown |= DIR_BACKWARD;
+		if (GetAsyncKeyState(VK_D) & 0x8000) m_keyDown |= DIR_RIGHT;
+		if (GetAsyncKeyState(VK_A) & 0x8000) m_keyDown |= DIR_LEFT;
+		if (GetAsyncKeyState(VK_Q) & 0x8000) m_keyDown |= DIR_UP;
+		if (GetAsyncKeyState(VK_E) & 0x8000) m_keyDown |= DIR_DOWN;
+
+		m_pScene->HandleInput(m_keyDown);
 	}
 
 	if (GetCapture() == m_hWnd)

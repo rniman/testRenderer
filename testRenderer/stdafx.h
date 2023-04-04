@@ -34,7 +34,16 @@ using namespace DirectX::PackedVector;
 constexpr UINT FRAMEBUFFER_WIDTH{ 1080 };
 constexpr UINT FRAMEBUFFER_HEIGHT{ 720 };
 
+constexpr UCHAR VK_W{ 0x57 };
+constexpr UCHAR VK_S{ 0x53 };
+constexpr UCHAR VK_D{ 0x44 };
+constexpr UCHAR VK_A{ 0x41 };
+constexpr UCHAR VK_Q{ 0x51 };
+constexpr UCHAR VK_E{ 0x45 };
+
 constexpr DWORD DIR_FORWARD{ 0x01 };
 constexpr DWORD DIR_BACKWARD{ 0x02 };
 constexpr DWORD DIR_RIGHT{ 0x04 };
 constexpr DWORD DIR_LEFT{ 0x08 };
+constexpr DWORD DIR_UP{ 0x10 };
+constexpr DWORD DIR_DOWN{ 0x20 };

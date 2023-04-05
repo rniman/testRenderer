@@ -86,10 +86,12 @@ void CPlayer::Rotate(const float deltaTime)
 	//	XMStoreFloat4x4A(&m_worldMatrix, mtxRotate * XMLoadFloat4x4A(&m_worldMatrix));
 	//}
 
+	//회전 행렬 구하고
 	//XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(XMConvertToRadians(m_pitch * m_rotationSpeed * deltaTime),	XMConvertToRadians(m_yaw * m_rotationSpeed * deltaTime),XMConvertToRadians(m_roll * m_rotationSpeed * deltaTime));
 
 	//XMStoreFloat4x4A(&m_worldMatrix, rotateMatrix * XMLoadFloat4x4A(&m_worldMatrix));
 
+	//기존 look에서 회전을 추가시킴
 	//XMVECTOR look = XMVectorSet(m_look.x, m_look.y, m_look.z, 0.0f);
 	//look = XMVector3TransformNormal(look, rotateMatrix);
 	//XMStoreFloat3A(&m_look, look);
@@ -102,11 +104,13 @@ void CPlayer::Rotate(const float deltaTime)
 	//right = XMVector3TransformNormal(right, rotateMatrix);
 	//XMStoreFloat3A(&m_right, right);
 
+	//회전행렬 구하고
 	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(
 		XMConvertToRadians(m_pitch *m_rotationSpeed * deltaTime), XMConvertToRadians(m_yaw * m_rotationSpeed * deltaTime), XMConvertToRadians(m_roll * m_rotationSpeed * deltaTime));
 	
 	XMStoreFloat4x4A(&m_worldMatrix, rotateMatrix * XMLoadFloat4x4A(&m_worldMatrix));
 
+	//월드 z축에 최종 회전을 추가
 	XMVECTOR look = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 	look = XMVector3TransformNormal(look, XMLoadFloat4x4A(&m_worldMatrix));
 	XMStoreFloat3A(&m_look, look);
@@ -118,13 +122,10 @@ void CPlayer::Rotate(const float deltaTime)
 	XMVECTOR right = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
 	right = XMVector3TransformNormal(right, XMLoadFloat4x4A(&m_worldMatrix));
 	XMStoreFloat3A(&m_right, right);
-
-
 }
 
 void CPlayer::Move(const float deltaTime)
 {
-
 	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_moveDirection) * m_speed * deltaTime));
 }
 

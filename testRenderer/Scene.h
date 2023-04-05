@@ -7,7 +7,7 @@ public:
 	CScene();
 	~CScene();
 
-	std::unique_ptr<CPlayer>& GetPlayer();
+	const std::unique_ptr<CPlayer>& GetPlayer() const;
 
 	void CreateScene();
 	void SetDownKey();

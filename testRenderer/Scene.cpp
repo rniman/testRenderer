@@ -9,7 +9,7 @@ CScene::~CScene()
 {
 }
 
-std::unique_ptr<CPlayer>& CScene::GetPlayer()
+const std::unique_ptr<CPlayer>& CScene::GetPlayer() const
 {
 	return m_pPlayer;
 }

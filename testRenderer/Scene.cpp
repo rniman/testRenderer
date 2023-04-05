@@ -9,6 +9,11 @@ CScene::~CScene()
 {
 }
 
+std::unique_ptr<CPlayer>& CScene::GetPlayer()
+{
+	return m_pPlayer;
+}
+
 void CScene::CreateScene()
 {
 	m_gameObjects.resize(2);

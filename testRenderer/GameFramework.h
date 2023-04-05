@@ -20,8 +20,11 @@ public:
 	void HandleInput();
 	void UpdateObjects();
 	void RenderObejcts();
-
 	void FrameAdvance();
+
+	void OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	void OnKeyBoardMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	void OnMouseMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
 	bool m_Active;
@@ -35,7 +38,7 @@ private:
 	HBITMAP m_hBitmapFrmaeBuffer;
 	HBITMAP m_hBitmapSelect;
 
-	POINT m_ptOldCursorPos;
+	POINT m_OldCursorPos;
 
 	_TCHAR m_pszFrameRate[50];
 

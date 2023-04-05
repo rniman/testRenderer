@@ -7,6 +7,8 @@ public:
 	CScene();
 	~CScene();
 
+	std::unique_ptr<CPlayer>& GetPlayer();
+
 	void CreateScene();
 	void SetDownKey();
 
@@ -17,6 +19,5 @@ public:
 private:
 	std::vector<CGameObject> m_gameObjects;
 	std::unique_ptr<CPlayer> m_pPlayer;
-
 };
 

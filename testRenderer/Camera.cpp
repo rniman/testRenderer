@@ -177,6 +177,7 @@ void CCamera::Rotate(const float pitch, const float yaw, const float roll)
 
 void CCamera::Update(const float deltaTime)
 {
+	//행렬 설정
 	SetCameraMatrix();
 	SetCameraProjectMatrix();
 }

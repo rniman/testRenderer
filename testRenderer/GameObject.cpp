@@ -37,9 +37,12 @@ void CGameObject::SetColor(const DWORD color)
 	m_color = color;
 }
 
+void CGameObject::Move()
+{
+}
+
 void CGameObject::Rotate(const float pitch, const float yaw, const float roll)
 {
-
 	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixMultiply( XMMatrixRotationRollPitchYaw( XMConvertToRadians(pitch), XMConvertToRadians(yaw), XMConvertToRadians(roll)), XMLoadFloat4x4A(&m_worldMatrix)));
 }
 

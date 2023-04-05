@@ -16,16 +16,16 @@ public:
 	void Move();
 	void Rotate(const float pitch, const float yaw, const float roll);
 
-	void Update(const float deltaTime);
-	void Render(HDC hDCFrameBuffer);
+	virtual void Update(const float deltaTime);
+	virtual void Render(HDC hDCFrameBuffer);
 
 protected:
 	bool m_active;
 	XMFLOAT4X4A m_worldMatrix;
 	std::shared_ptr<CMesh> m_mesh;
+	DWORD m_color;
 
 private:
-	DWORD m_color;
 };
 
 

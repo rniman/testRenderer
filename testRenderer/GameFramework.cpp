@@ -9,7 +9,7 @@ CGameFramework::CGameFramework()
 	, m_hDCFrameBuffer{ nullptr }
 	, m_hBitmapFrmaeBuffer{ nullptr }
 	, m_hBitmapSelect{ nullptr }
-	, m_ptOldCursorPos{}
+	, m_OldCursorPos{}
 	, m_pszFrameRate{}
 	, m_keyDown{}
 	, m_pScene{ nullptr }
@@ -86,31 +86,31 @@ void CGameFramework::DestroyObjects()
 
 void CGameFramework::HandleInput()
 {
-	//static UCHAR keyBuffer[256];
-	{
-		m_keyDown = 0;
-		
-		//if (keyBuffer[0x57] & 0xF0) m_keyDown |= DIR_FORWARD;
-		//if (keyBuffer[0x53] & 0xF0)	m_keyDown |= DIR_BACKWARD;
-		//if (keyBuffer[0x44] & 0xF0)	m_keyDown |= DIR_RIGHT;
-		//if (keyBuffer[0x41] & 0xF0)	m_keyDown |= DIR_LEFT;
-		//if (keyBuffer[0x51] & 0xF0)	m_keyDown |= DIR_UP;
-		//if (keyBuffer[0x45] & 0xF0)	m_keyDown |= DIR_DOWN;
-
-		if (GetAsyncKeyState(VK_W) & 0x8000) m_keyDown |= DIR_FORWARD;
-		if (GetAsyncKeyState(VK_S) & 0x8000) m_keyDown |= DIR_BACKWARD;
-		if (GetAsyncKeyState(VK_D) & 0x8000) m_keyDown |= DIR_RIGHT;
-		if (GetAsyncKeyState(VK_A) & 0x8000) m_keyDown |= DIR_LEFT;
-		if (GetAsyncKeyState(VK_Q) & 0x8000) m_keyDown |= DIR_UP;
-		if (GetAsyncKeyState(VK_E) & 0x8000) m_keyDown |= DIR_DOWN;
-
-		m_pScene->HandleInput(m_keyDown);
-	}
-
+	m_pScene->GetPlayer()->SetRotationAngle(0.0f, 0.0f, 0.0f);
 	if (GetCapture() == m_hWnd)
 	{
-
+		SetCursor(nullptr);
+		POINT ptCursorPos;
+		GetCursorPos(&ptCursorPos);
+		float cxMouseDelta = (float)(ptCursorPos.x - m_OldCursorPos.x) / 3.0f;
+		float cyMouseDelta = (float)(ptCursorPos.y - m_OldCursorPos.y) / 3.0f;
+		SetCursorPos(m_OldCursorPos.x, m_OldCursorPos.y);
+		if (cxMouseDelta || cyMouseDelta)
+		{
+			m_pScene->GetPlayer()->SetRotationAngle(cyMouseDelta, cxMouseDelta, 0.0f);
+		}
 	}
+
+	m_keyDown = 0;
+
+	if (GetAsyncKeyState(VK_W) & 0x8000) m_keyDown |= DIR_FORWARD;
+	if (GetAsyncKeyState(VK_S) & 0x8000) m_keyDown |= DIR_BACKWARD;
+	if (GetAsyncKeyState(VK_D) & 0x8000) m_keyDown |= DIR_RIGHT;
+	if (GetAsyncKeyState(VK_A) & 0x8000) m_keyDown |= DIR_LEFT;
+	if (GetAsyncKeyState(VK_Q) & 0x8000) m_keyDown |= DIR_UP;
+	if (GetAsyncKeyState(VK_E) & 0x8000) m_keyDown |= DIR_DOWN;
+
+	m_pScene->HandleInput(m_keyDown);
 }
 
 void CGameFramework::UpdateObjects()
@@ -140,6 +140,75 @@ void CGameFramework::FrameAdvance()
 
 	m_gameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
+}
+
+void CGameFramework::OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+	case WM_SIZE:
+		break;
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_MOUSEMOVE:
+		OnMouseMessage(hWnd, message, wParam, lParam);
+		break;
+	case WM_KEYDOWN:
+	case WM_KEYUP:
+		OnKeyBoardMessage(hWnd, message, wParam, lParam);
+		break;
+	}
+}
+
+void CGameFramework::OnKeyBoardMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_ESCAPE:
+			::PostQuitMessage(0);
+			break;
+		case VK_RETURN:
+			break;
+		case VK_CONTROL:
+			break;
+		default:
+			//m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void CGameFramework::OnMouseMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+	case WM_RBUTTONDOWN:
+	case WM_LBUTTONDOWN:
+		SetCapture(hWnd);
+		GetCursorPos(&m_OldCursorPos);
+		//if (message == WM_RBUTTONDOWN)
+		//{
+		//	m_pLockedObject = m_pScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pPlayer->m_pCamera);
+		//	if (m_pLockedObject) m_pLockedObject->SetColor(RGB(0, 0, 0));
+		//}
+		break;
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+		ReleaseCapture();
+		break;
+	case WM_MOUSEMOVE:
+		break;
+	default:
+		break;
+	}
 }
 
 

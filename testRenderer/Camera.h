@@ -43,7 +43,6 @@ public:
 	XMFLOAT4X4A GetCameraProjectMatrix() const;
 	XMFLOAT4X4A GetPerspectiveProjectMatrix() const;
 
-
 	void SetPosition(const XMFLOAT3A& position);
 	void SetLookAt(const XMFLOAT3A& eye, const XMFLOAT3A& look, const XMFLOAT3A& up);
 	void SetLookTo(const XMFLOAT3A& eye, const XMFLOAT3A& look, const XMFLOAT3A& up);

@@ -213,3 +213,62 @@ CCube::CCube(const float width, const float height, const float depth)
 CCube::~CCube()
 {
 }
+
+/// <CCube>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+/// <CTankMesh>
+
+CTankMesh::CTankMesh()
+	:CMesh(6)
+{
+	float halfWidth = 4.0f;
+	float halfHeight = 1.0f;
+	float halfDepth = 5.0f;
+
+	std::unique_ptr<CPolygon> frontPlane = std::make_unique<CPolygon>(4);
+	frontPlane->SetVertex(0, CVertex(halfWidth, halfHeight, halfDepth));
+	frontPlane->SetVertex(1, CVertex(halfWidth, -halfHeight, halfDepth));
+	frontPlane->SetVertex(2, CVertex(-halfWidth, -halfHeight, halfDepth));
+	frontPlane->SetVertex(3, CVertex(-halfWidth, halfHeight, halfDepth));
+	SetPolygon(0, *frontPlane.release());
+
+	std::unique_ptr<CPolygon> leftPlane = std::make_unique<CPolygon>(4);
+	leftPlane->SetVertex(0, CVertex(-halfWidth, halfHeight, -halfDepth));
+	leftPlane->SetVertex(1, CVertex(-halfWidth, -halfHeight, -halfDepth));
+	leftPlane->SetVertex(2, CVertex(-halfWidth, -halfHeight, halfDepth));
+	leftPlane->SetVertex(3, CVertex(-halfWidth, halfHeight, halfDepth));
+	SetPolygon(1, *leftPlane.release());
+
+	std::unique_ptr<CPolygon> backPlane = std::make_unique<CPolygon>(4);
+	backPlane->SetVertex(0, CVertex(halfWidth, halfHeight, -halfDepth));
+	backPlane->SetVertex(1, CVertex(halfWidth, -halfHeight, -halfDepth));
+	backPlane->SetVertex(2, CVertex(-halfWidth, -halfHeight, -halfDepth));
+	backPlane->SetVertex(3, CVertex(-halfWidth, halfHeight, -halfDepth));
+	SetPolygon(2, *backPlane.release());
+
+	std::unique_ptr<CPolygon> rightPlane = std::make_unique<CPolygon>(4);
+	rightPlane->SetVertex(0, CVertex(halfWidth, halfHeight, halfDepth));
+	rightPlane->SetVertex(1, CVertex(halfWidth, -halfHeight, halfDepth));
+	rightPlane->SetVertex(2, CVertex(halfWidth, -halfHeight, -halfDepth));
+	rightPlane->SetVertex(3, CVertex(halfWidth, halfHeight, -halfDepth));
+	SetPolygon(3, *rightPlane.release());
+
+	std::unique_ptr<CPolygon> topPlane = std::make_unique<CPolygon>(4);
+	topPlane->SetVertex(0, CVertex(halfWidth, halfHeight, halfDepth));
+	topPlane->SetVertex(1, CVertex(halfWidth, halfHeight, -halfDepth));
+	topPlane->SetVertex(2, CVertex(-halfWidth, halfHeight, -halfDepth));
+	topPlane->SetVertex(3, CVertex(-halfWidth, halfHeight, halfDepth));
+	SetPolygon(4, *topPlane.release());
+
+	std::unique_ptr<CPolygon> bottomPlane = std::make_unique<CPolygon>(4);
+	bottomPlane->SetVertex(0, CVertex(halfWidth, -halfHeight, -halfDepth));
+	bottomPlane->SetVertex(1, CVertex(halfWidth, -halfHeight, halfDepth));
+	bottomPlane->SetVertex(2, CVertex(-halfWidth, -halfHeight, halfDepth));
+	bottomPlane->SetVertex(3, CVertex(-halfWidth, -halfHeight, -halfDepth));
+	SetPolygon(5, *bottomPlane.release());
+
+}
+
+CTankMesh::~CTankMesh()
+{
+}

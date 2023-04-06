@@ -45,7 +45,7 @@ public:
 
 	void SetPosition(const XMFLOAT3A& position);
 	void SetLookAt(const XMFLOAT3A& eye, const XMFLOAT3A& look, const XMFLOAT3A& up);
-	void SetLookTo(const XMFLOAT3A& eye, const XMFLOAT3A& look, const XMFLOAT3A& up);
+	void SetLookTo(const XMFLOAT3A& eye, const XMFLOAT3A& look, const XMFLOAT3A& up = {0.0f, 1.0f, 0.0f});
 	
 	void SetCameraMatrix();
 

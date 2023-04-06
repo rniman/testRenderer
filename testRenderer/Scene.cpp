@@ -35,7 +35,11 @@ void CScene::CreateScene()
 	newCamera.SetCameraMatrix();
 	newCamera.SetProjectMatrix(1.0f, 100.0f);
 	newCamera.SetCameraProjectMatrix();
-	m_pPlayer = std::make_unique<CPlayer>(newCamera);
+	m_pPlayer = std::make_unique<CTankPlayer>(newCamera);
+
+	std::shared_ptr<CMesh> tankMesh = std::make_shared<CTankMesh>();
+	m_pPlayer->SetMesh(tankMesh);
+	m_pPlayer->SetColor(RGB(0, 120, 0));
 }
 
 void CScene::HandleInput(DWORD downKey)
@@ -64,8 +68,11 @@ void CScene::Render(HDC hDCFrameBuffer)
 {
 	CGraphicsPipeline::SetCameraProejectdMatrix(m_pPlayer->GetCamera().GetCameraProjectMatrix());
 	CGraphicsPipeline::SetViewport(m_pPlayer->GetCamera().GetViewport());
+	
 	for (CGameObject& gameObject : m_gameObjects)
 	{
 		gameObject.Render(hDCFrameBuffer);
 	}
+	
+	m_pPlayer->Render(hDCFrameBuffer);
 }

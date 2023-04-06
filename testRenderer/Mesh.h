@@ -69,3 +69,14 @@ public:
 	CCube(const float width = 4.0f, const float height = 4.0f, const float depth = 4.0f);
 	virtual ~CCube() override;
 };
+
+/// <CCube>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+/// <CTankMesh>
+
+class CTankMesh : public CMesh
+{
+public:
+	CTankMesh();
+	virtual ~CTankMesh();
+};

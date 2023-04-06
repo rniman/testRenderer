@@ -23,7 +23,7 @@ public:
 	void Update(const float deltaTime) override;
 	void Render(HDC hDCFrameBuffer) override;
 
-private:
+protected:
 	XMFLOAT3A m_position;
 	XMFLOAT3A m_right;
 	XMFLOAT3A m_up;
@@ -39,4 +39,21 @@ private:
 	CCamera m_camera;
 
 	XMFLOAT3A m_moveDirection;
+};
+
+/// <CPlayer>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+/// <CTankPlayer>
+
+class CTankPlayer : public CPlayer
+{
+public:
+	CTankPlayer();
+	CTankPlayer(const CCamera& camera);
+	virtual ~CTankPlayer();
+
+	void Update(const float deltaTime) override;
+	void Render(HDC hDCFrameBuffer) override;
+private:
+	XMFLOAT3A m_cameraOffset;
 };

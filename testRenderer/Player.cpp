@@ -91,7 +91,7 @@ void CPlayer::Rotate(const float deltaTime)
 
 	//XMStoreFloat4x4A(&m_worldMatrix, rotateMatrix * XMLoadFloat4x4A(&m_worldMatrix));
 
-	//기존 look에서 회전을 추가시킴
+	////기존 look에서 회전을 추가시킴
 	//XMVECTOR look = XMVectorSet(m_look.x, m_look.y, m_look.z, 0.0f);
 	//look = XMVector3TransformNormal(look, rotateMatrix);
 	//XMStoreFloat3A(&m_look, look);
@@ -104,10 +104,23 @@ void CPlayer::Rotate(const float deltaTime)
 	//right = XMVector3TransformNormal(right, rotateMatrix);
 	//XMStoreFloat3A(&m_right, right);
 
+
+	////쿼터니언 사용
+	//XMVECTOR quaternion = XMQuaternionRotationRollPitchYaw(XMConvertToRadians(m_pitch * m_rotationSpeed * deltaTime), XMConvertToRadians(m_yaw * m_rotationSpeed * deltaTime), XMConvertToRadians(m_roll * m_rotationSpeed * deltaTime));
+
+	//XMStoreFloat4x4A(&m_worldMatrix, XMMatrixRotationQuaternion(quaternion) * XMLoadFloat4x4A(&m_worldMatrix));
+
+	//XMVECTOR look = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	//XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	//XMVECTOR right = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+
+	//XMStoreFloat3A(&m_look, XMVector3TransformNormal(look, XMLoadFloat4x4A(&m_worldMatrix)));
+	//XMStoreFloat3A(&m_up, XMVector3TransformNormal(up, XMLoadFloat4x4A(&m_worldMatrix)));
+	//XMStoreFloat3A(&m_right, XMVector3TransformNormal(right, XMLoadFloat4x4A(&m_worldMatrix)));
+
 	//회전행렬 구하고
-	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(
-		XMConvertToRadians(m_pitch *m_rotationSpeed * deltaTime), XMConvertToRadians(m_yaw * m_rotationSpeed * deltaTime), XMConvertToRadians(m_roll * m_rotationSpeed * deltaTime));
-	
+	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(XMConvertToRadians(m_pitch * m_rotationSpeed * deltaTime), XMConvertToRadians(m_yaw * m_rotationSpeed * deltaTime), XMConvertToRadians(m_roll * m_rotationSpeed * deltaTime));
+
 	XMStoreFloat4x4A(&m_worldMatrix, rotateMatrix * XMLoadFloat4x4A(&m_worldMatrix));
 
 	//월드 z축에 최종 회전을 추가
@@ -153,7 +166,7 @@ void CPlayer::Update(const float deltaTime)
 	m_position.y = m_worldMatrix._42;
 	m_position.z = m_worldMatrix._43;
 
-	m_camera.SetLookTo(m_position, m_look, m_up);
+	m_camera.SetLookTo(m_position, m_look);
 	m_camera.Update(deltaTime);
 }
 
@@ -161,3 +174,54 @@ void CPlayer::Render(HDC hDCFrameBuffer)
 {
 }
 
+/// <CPlayer>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+/// <CTankPlayer>
+
+CTankPlayer::CTankPlayer()
+	: CPlayer()
+	, m_cameraOffset{ 0.0f, 5.0f, -17.0f }
+{
+	m_camera.SetPosition(m_cameraOffset);
+}
+
+CTankPlayer::CTankPlayer(const CCamera& camera)
+	: CPlayer(camera)
+	, m_cameraOffset{ 0.0f, 5.0f, -17.0f }
+{
+	m_camera.SetPosition(m_cameraOffset);
+}
+
+CTankPlayer::~CTankPlayer()
+{
+}
+
+void CTankPlayer::Update(const float deltaTime)
+{
+	Rotate(deltaTime);
+	Move(deltaTime);
+
+	m_position.x = m_worldMatrix._41;
+	m_position.y = m_worldMatrix._42;
+	m_position.z = m_worldMatrix._43;
+
+	XMFLOAT3A eye;
+	XMStoreFloat3A(&eye, XMVector3TransformCoord( XMLoadFloat3A(& m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)));
+
+	m_camera.SetLookTo(eye, m_look, m_up);
+	m_camera.Update(deltaTime);
+}
+
+void CTankPlayer::Render(HDC hDCFrameBuffer)
+{
+	if (!m_mesh)
+		return;
+	HPEN hPen = CreatePen(PS_SOLID, 0, m_color);
+	HPEN hOldPen = (HPEN)SelectObject(hDCFrameBuffer, hPen);
+
+	CGraphicsPipeline::SetWorldMatrix(m_worldMatrix);
+	m_mesh->Render(hDCFrameBuffer);
+
+	SelectObject(hDCFrameBuffer, hOldPen);
+	DeleteObject(hPen);
+}

@@ -48,7 +48,7 @@ void CGameObject::Rotate(const float pitch, const float yaw, const float roll)
 
 void CGameObject::Update(const float deltaTime)
 {
-	Rotate(0.0f, 0.0f, 50 * deltaTime);
+	Rotate(m_pitch * deltaTime, m_yaw * deltaTime, m_roll * deltaTime);
 }
 
 void CGameObject::Render(HDC hDCFrameBuffer)

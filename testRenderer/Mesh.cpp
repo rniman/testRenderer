@@ -158,6 +158,73 @@ void CMesh::Render(HDC hDCFrameBuffer)
 
 /// <CMesh>
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+/// <CFloor>
+
+CFloor::CFloor(const float width, const float height, const float depth, const unsigned divideNum)
+	:CMesh(divideNum * divideNum)
+{
+	float smallWidth = width / divideNum;
+	float smallDepth = depth / divideNum;
+
+	int index = 0;
+	for (int i = 0; i < divideNum; ++i)
+	{
+		for (int j = 0; j < divideNum; ++j)
+		{
+			std::unique_ptr<CPolygon> Plane = std::make_unique<CPolygon>(4);
+			Plane->SetVertex(0, CVertex(-width / 2 + smallWidth * (i + 1), 0.0f, depth / 2 - smallDepth * j));
+			Plane->SetVertex(1, CVertex(-width / 2 + smallWidth * (i + 1), 0.0f, depth / 2 - smallDepth * (j + 1)));
+			Plane->SetVertex(2, CVertex(-width / 2 + smallWidth * i, 0.0f, depth / 2 - smallDepth * (j + 1)));
+			Plane->SetVertex(3, CVertex(-width / 2 + smallWidth * i, 0.0f, depth / 2 - smallDepth * j));
+			SetPolygon(index++, *Plane.release());
+		}
+	}
+}
+
+CFloor::~CFloor()
+{
+}
+
+void CFloor::Render(HDC hDCFrameBuffer)
+{
+	XMFLOAT3A firstProject, prevProject;
+	bool bFirstProject, bPrevProject;
+
+	for (int i = 0; i < m_polygonsBuffer.size(); ++i)
+	{
+		CVertex firstVertex = m_polygonsBuffer[i]->GetBuffer()[0];
+
+		firstProject = prevProject = CGraphicsPipeline::Project(firstVertex.GetPosition());
+
+		bFirstProject = bPrevProject = (firstProject.x <= 1) && (firstProject.x >= -1) && (firstProject.y <= 1) && (firstProject.y >= -1) && (firstProject.z >= 0) && (firstProject.z <= 1);
+
+		for (int j = 1; j < m_polygonsBuffer[i]->GetBuffer().size(); ++j)
+		{
+			CVertex curVertex = m_polygonsBuffer[i]->GetBuffer()[j];
+			XMFLOAT3A curProject = CGraphicsPipeline::Project(curVertex.GetPosition());
+			bool bCurProject;
+
+			bCurProject = (curProject.x <= 1) && (curProject.x >= -1) && (curProject.y <= 1) && (curProject.y >= -1) && (curProject.z >= 0) && (curProject.z <= 1);
+
+			if (bPrevProject || bCurProject)
+			{
+				//±×¸°´Ù.
+				Draw2DLine(hDCFrameBuffer, prevProject, curProject);
+			}
+
+			prevProject = curProject;
+			bPrevProject = bCurProject;
+		}
+
+		if (bFirstProject || bPrevProject)
+		{
+			Draw2DLine(hDCFrameBuffer, prevProject, firstProject);
+		}
+	}
+}
+
+/// <CFloor>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 /// <CCube>
 
 CCube::CCube(const float width, const float height, const float depth)
@@ -212,6 +279,11 @@ CCube::CCube(const float width, const float height, const float depth)
 
 CCube::~CCube()
 {
+}
+
+void CCube::Render(HDC hDCFrameBuffer)
+{
+	CMesh::Render(hDCFrameBuffer);
 }
 
 /// <CCube>
@@ -271,4 +343,9 @@ CTankMesh::CTankMesh()
 
 CTankMesh::~CTankMesh()
 {
+}
+
+void CTankMesh::Render(HDC hDCFrameBuffer)
+{
+	CMesh::Render(hDCFrameBuffer);
 }

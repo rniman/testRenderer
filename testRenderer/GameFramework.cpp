@@ -86,7 +86,6 @@ void CGameFramework::DestroyObjects()
 
 void CGameFramework::HandleInput()
 {
-	m_pScene->GetPlayer()->SetRotationAngle(0.0f, 0.0f, 0.0f);
 	if (GetCapture() == m_hWnd)
 	{
 		SetCursor(nullptr);
@@ -121,7 +120,7 @@ void CGameFramework::UpdateObjects()
 
 void CGameFramework::RenderObejcts()
 {
-	ClearFrameBuffer(RGB(100, 100, 100));
+	ClearFrameBuffer(RGB(0, 0, 0));
 
 	m_pScene->Render(m_hDCFrameBuffer);
 

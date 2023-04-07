@@ -25,6 +25,9 @@ protected:
 	std::shared_ptr<CMesh> m_mesh;
 	DWORD m_color;
 
+	float m_pitch{ 0.0f };
+	float m_yaw{ 0.0f };
+	float m_roll{ 0.0f };
 private:
 };
 

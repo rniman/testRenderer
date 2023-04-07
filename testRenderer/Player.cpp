@@ -54,38 +54,13 @@ void CPlayer::SetDirection()
 
 void CPlayer::SetRotationAngle(const float pitch, const float yaw, const float roll)
 {
-	m_pitch = pitch;
-	m_yaw = yaw;
-	m_roll = roll;
+	m_pitch += pitch;
+	m_yaw += yaw;
+	m_roll += roll;
 }
 
 void CPlayer::Rotate(const float deltaTime)
 {
-	//if (m_pitch != 0.0f)
-	//{
-	//	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_right), XMConvertToRadians(m_pitch * m_rotationSpeed * deltaTime));
-	//	XMStoreFloat3A(&m_look, XMVector3TransformNormal(XMLoadFloat3A(&m_look), mtxRotate));
-	//	XMStoreFloat3A(&m_up, XMVector3TransformNormal(XMLoadFloat3A(&m_up), mtxRotate));
-
-	//	XMStoreFloat4x4A(&m_worldMatrix, mtxRotate * XMLoadFloat4x4A(&m_worldMatrix));
-	//}
-	//if (m_yaw != 0.0f)
-	//{
-	//	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_up), XMConvertToRadians(m_yaw * m_rotationSpeed * deltaTime));
-	//	XMStoreFloat3A(&m_look, XMVector3TransformNormal(XMLoadFloat3A(&m_look), mtxRotate));
-	//	XMStoreFloat3A(&m_right, XMVector3TransformNormal(XMLoadFloat3A(&m_right), mtxRotate));
-
-	//	XMStoreFloat4x4A(&m_worldMatrix, mtxRotate * XMLoadFloat4x4A(&m_worldMatrix));
-	//}
-	//if (m_roll != 0.0f)
-	//{
-	//	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_look), XMConvertToRadians(m_roll * m_rotationSpeed * deltaTime));
-	//	XMStoreFloat3A(&m_up, XMVector3TransformNormal(XMLoadFloat3A(&m_up), mtxRotate));
-	//	XMStoreFloat3A(&m_right, XMVector3TransformNormal(XMLoadFloat3A(&m_right), mtxRotate));
-
-	//	XMStoreFloat4x4A(&m_worldMatrix, mtxRotate * XMLoadFloat4x4A(&m_worldMatrix));
-	//}
-
 	//회전 행렬 구하고
 	//XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(XMConvertToRadians(m_pitch * m_rotationSpeed * deltaTime),	XMConvertToRadians(m_yaw * m_rotationSpeed * deltaTime),XMConvertToRadians(m_roll * m_rotationSpeed * deltaTime));
 
@@ -121,7 +96,7 @@ void CPlayer::Rotate(const float deltaTime)
 	//회전행렬 구하고
 	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(XMConvertToRadians(m_pitch * m_rotationSpeed * deltaTime), XMConvertToRadians(m_yaw * m_rotationSpeed * deltaTime), XMConvertToRadians(m_roll * m_rotationSpeed * deltaTime));
 
-	XMStoreFloat4x4A(&m_worldMatrix, rotateMatrix * XMLoadFloat4x4A(&m_worldMatrix));
+	XMStoreFloat4x4A(&m_worldMatrix, rotateMatrix * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
 
 	//월드 z축에 최종 회전을 추가
 	XMVECTOR look = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
@@ -140,6 +115,10 @@ void CPlayer::Rotate(const float deltaTime)
 void CPlayer::Move(const float deltaTime)
 {
 	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_moveDirection) * m_speed * deltaTime));
+
+	m_position.x = m_worldMatrix._41;
+	m_position.y = m_worldMatrix._42;
+	m_position.z = m_worldMatrix._43;
 }
 
 void CPlayer::HandleInput(DWORD direction)
@@ -161,10 +140,6 @@ void CPlayer::Update(const float deltaTime)
 	//행렬을 업데이트하고 움직인다//
 	Rotate(deltaTime);
 	Move(deltaTime);
-	
-	m_position.x = m_worldMatrix._41;
-	m_position.y = m_worldMatrix._42;
-	m_position.z = m_worldMatrix._43;
 
 	m_camera.SetLookTo(m_position, m_look);
 	m_camera.Update(deltaTime);
@@ -180,14 +155,14 @@ void CPlayer::Render(HDC hDCFrameBuffer)
 
 CTankPlayer::CTankPlayer()
 	: CPlayer()
-	, m_cameraOffset{ 0.0f, 5.0f, -17.0f }
+	, m_cameraOffset{ 0.0f, 10.0f, -30.0f }
 {
 	m_camera.SetPosition(m_cameraOffset);
 }
 
 CTankPlayer::CTankPlayer(const CCamera& camera)
 	: CPlayer(camera)
-	, m_cameraOffset{ 0.0f, 5.0f, -17.0f }
+	, m_cameraOffset{ 0.0f, 10.0f, -30.0f }
 {
 	m_camera.SetPosition(m_cameraOffset);
 }

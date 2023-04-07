@@ -16,19 +16,25 @@ const std::unique_ptr<CPlayer>& CScene::GetPlayer() const
 
 void CScene::CreateScene()
 {
-	m_gameObjects.resize(2);
+	m_gameObjects.reserve(10);
+
+	std::shared_ptr<CMesh> floorMesh = std::make_shared<CFloor>(200.0f, 0.0f, 200.0f, 40);
+
+	m_gameObjects.emplace_back(CGameObject());
+	m_gameObjects[0].SetMesh(floorMesh);
+	m_gameObjects[0].SetColor(RGB(100, 100, 100));
+	m_gameObjects[0].SetPosition(0.0f, 0.0f, 0.0f);
 
 	std::shared_ptr<CMesh> cubeMesh = std::make_shared<CCube>();
-
-	m_gameObjects[0].SetMesh(cubeMesh);
-	m_gameObjects[0].SetColor(RGB(0, 0, 255));
-	m_gameObjects[0].SetPosition(0.0f, 0.0f, 15.0f);
-	m_gameObjects[0].Rotate(45.0f, 0.0f, 0.0f);
-	
+	m_gameObjects.emplace_back(CGameObject());
 	m_gameObjects[1].SetMesh(cubeMesh);
-	m_gameObjects[1].SetColor(RGB(0, 255, 255));
-	m_gameObjects[1].SetPosition(10.0f, 0.0f, 15.0f);
-	m_gameObjects[1].Rotate(10.0f, 10.0f, 10.0f);
+	m_gameObjects[1].SetColor(RGB(0, 0, 255));
+	m_gameObjects[1].SetPosition(0.0f, 0.0f, 15.0f);
+	
+	m_gameObjects.emplace_back(CGameObject());
+	m_gameObjects[2].SetMesh(cubeMesh);
+	m_gameObjects[2].SetColor(RGB(0, 255, 255));
+	m_gameObjects[2].SetPosition(10.0f, 0.0f, 15.0f);
 
 	CCamera newCamera;
 	newCamera.SetPosition(XMFLOAT3A(0.0f, 0.0f, 0.0f));

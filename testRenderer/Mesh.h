@@ -53,13 +53,26 @@ public:
 
 	void SetPolygon(const int index, CPolygon& polygon);
 
-	void Render(HDC hDCFrameBuffer);
+	virtual void Render(HDC hDCFrameBuffer);
 
 protected:
 	std::vector<std::unique_ptr<CPolygon>> m_polygonsBuffer;
 };
 
 /// <CMesh>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+/// <CFloor>
+
+class CFloor : public CMesh
+{
+public:
+	CFloor(const float width = 100.0f, const float height = 0.0f, const float depth = 100.0f, const unsigned divideNum = 10);
+	virtual ~CFloor() override;
+
+	virtual void Render(HDC hDCFrameBuffer);
+};
+
+/// <CFloor>
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 /// <CCube>
 
@@ -68,6 +81,8 @@ class CCube : public CMesh
 public:
 	CCube(const float width = 4.0f, const float height = 4.0f, const float depth = 4.0f);
 	virtual ~CCube() override;
+
+	virtual void Render(HDC hDCFrameBuffer) override;
 };
 
 /// <CCube>
@@ -79,4 +94,6 @@ class CTankMesh : public CMesh
 public:
 	CTankMesh();
 	virtual ~CTankMesh();
+
+	virtual void Render(HDC hDCFrameBuffer) override;
 };

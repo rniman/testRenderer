@@ -18,7 +18,7 @@ void CScene::CreateScene()
 {
 	m_gameObjects.reserve(10);
 
-	std::shared_ptr<CMesh> floorMesh = std::make_shared<CFloor>(200.0f, 0.0f, 200.0f, 40);
+	std::shared_ptr<CMesh> floorMesh = std::make_shared<CFloor>(200.0f, 0.0f, 200.0f, 20);
 
 	m_gameObjects.emplace_back(CGameObject());
 	m_gameObjects[0].SetMesh(floorMesh);
@@ -34,15 +34,15 @@ void CScene::CreateScene()
 	m_gameObjects.emplace_back(CGameObject());
 	m_gameObjects[2].SetMesh(cubeMesh);
 	m_gameObjects[2].SetColor(RGB(0, 255, 255));
-	m_gameObjects[2].SetPosition(10.0f, 0.0f, 15.0f);
+	m_gameObjects[2].SetPosition(10.0f, 2.0f, 15.0f);
 
 	CCamera newCamera;
 	newCamera.SetPosition(XMFLOAT3A(0.0f, 0.0f, 0.0f));
 	newCamera.SetCameraMatrix();
 	newCamera.SetProjectMatrix(1.0f, 100.0f);
 	newCamera.SetCameraProjectMatrix();
-	m_pPlayer = std::make_unique<CTankPlayer>(newCamera);
 
+	m_pPlayer = std::make_unique<CTankPlayer>(newCamera);
 	std::shared_ptr<CMesh> tankMesh = std::make_shared<CTankMesh>();
 	m_pPlayer->SetMesh(tankMesh);
 	m_pPlayer->SetColor(RGB(0, 120, 0));

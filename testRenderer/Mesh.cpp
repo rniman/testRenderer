@@ -176,6 +176,7 @@ CFloor::CFloor(const float width, const float height, const float depth, const u
 			Plane->SetVertex(1, CVertex(-width / 2 + smallWidth * (i + 1), 0.0f, depth / 2 - smallDepth * (j + 1)));
 			Plane->SetVertex(2, CVertex(-width / 2 + smallWidth * i, 0.0f, depth / 2 - smallDepth * (j + 1)));
 			Plane->SetVertex(3, CVertex(-width / 2 + smallWidth * i, 0.0f, depth / 2 - smallDepth * j));
+
 			SetPolygon(index++, *Plane.release());
 		}
 	}
@@ -187,8 +188,8 @@ CFloor::~CFloor()
 
 void CFloor::Render(HDC hDCFrameBuffer)
 {
-	XMFLOAT3A firstProject, prevProject;
-	bool bFirstProject, bPrevProject;
+	XMFLOAT3A firstProject, prevProject, pPrevProject;
+	bool bFirstProject, bPrevProject, bPPrevProject;
 
 	for (int i = 0; i < m_polygonsBuffer.size(); ++i)
 	{
@@ -212,13 +213,20 @@ void CFloor::Render(HDC hDCFrameBuffer)
 				Draw2DLine(hDCFrameBuffer, prevProject, curProject);
 			}
 
+			pPrevProject = prevProject;
 			prevProject = curProject;
+
+			bPPrevProject = bPrevProject;
 			bPrevProject = bCurProject;
 		}
 
 		if (bFirstProject || bPrevProject)
 		{
 			Draw2DLine(hDCFrameBuffer, prevProject, firstProject);
+			if (bFirstProject || bPPrevProject)
+			{
+				Draw2DLine(hDCFrameBuffer, pPrevProject, firstProject);
+			}
 		}
 	}
 }

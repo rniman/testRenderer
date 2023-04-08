@@ -1,5 +1,5 @@
 #pragma once
-#include "GameObject.h"
+#include "BulletObject.h"
 #include "Camera.h"
 
 class CPlayer : public CGameObject
@@ -11,31 +11,22 @@ public:
 	
 	CCamera GetCamera() const;
 	
-	void SetPosition(const XMFLOAT3A& position);
 	void SetCamera(const CCamera& camera);
 	void SetDirection();
-	void SetRotationAngle(const float pitch, const float yaw, const float roll);
+	
 
-	void Rotate(const float deltaTime);
-	void Move(const float deltaTime);
+	void Rotate(const float deltaTime) override;
+	void Move(const float deltaTime) override;
 
 	void HandleInput(DWORD direction);
 	void Update(const float deltaTime) override;
 	void Render(HDC hDCFrameBuffer) override;
 
 protected:
-	XMFLOAT3A m_position;
 	XMFLOAT3A m_right;
 	XMFLOAT3A m_up;
 	XMFLOAT3A m_look;
 	
-	float m_pitch{ 0.0f };
-	float m_yaw{ 0.0f };
-	float m_roll{ 0.0f };
-
-	float m_speed;
-	float m_rotationSpeed;
-
 	CCamera m_camera;
 
 	XMFLOAT3A m_moveDirection;
@@ -45,6 +36,8 @@ protected:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 /// <CTankPlayer>
 
+constexpr UCHAR MAX_BULLET{ 50 };
+
 class CTankPlayer : public CPlayer
 {
 public:
@@ -52,8 +45,15 @@ public:
 	CTankPlayer(const CCamera& camera);
 	virtual ~CTankPlayer();
 
+	void FireBullet();
+
 	void Update(const float deltaTime) override;
 	void Render(HDC hDCFrameBuffer) override;
 private:
 	XMFLOAT3A m_cameraOffset;
+	CCamera m_subCamera;
+	bool m_bMainCamera;
+
+	std::vector<CBulletObject> m_bullet;
+	float m_coolTime;
 };

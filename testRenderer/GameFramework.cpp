@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameFramework.h"
+#include "Player.h"
 
 CGameFramework::CGameFramework()
 	: m_Active{true}
@@ -96,8 +97,8 @@ void CGameFramework::HandleInput()
 		SetCursorPos(m_OldCursorPos.x, m_OldCursorPos.y);
 		if (cxMouseDelta || cyMouseDelta)
 		{
-			if(GetAsyncKeyState(VK_LBUTTON) & 0x8000) m_pScene->GetPlayer()->SetRotationAngle(cyMouseDelta, cxMouseDelta, 0.0f);
-			if(GetAsyncKeyState(VK_RBUTTON) & 0x8000) m_pScene->GetPlayer()->SetRotationAngle(cyMouseDelta, 0.0f, -cxMouseDelta);
+			if(GetAsyncKeyState(VK_LBUTTON) & 0x8000) m_pScene->GetPlayer()->AddRotationAngle(cyMouseDelta, cxMouseDelta, 0.0f);
+			//if(GetAsyncKeyState(VK_RBUTTON) & 0x8000) m_pScene->GetPlayer()->SetRotationAngle(cyMouseDelta, 0.0f, -cxMouseDelta);
 		}
 	}
 
@@ -109,6 +110,8 @@ void CGameFramework::HandleInput()
 	if (GetAsyncKeyState(VK_A) & 0x8000) m_keyDown |= DIR_LEFT;
 	if (GetAsyncKeyState(VK_Q) & 0x8000) m_keyDown |= DIR_UP;
 	if (GetAsyncKeyState(VK_E) & 0x8000) m_keyDown |= DIR_DOWN;
+
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000) (static_cast<CTankPlayer*>((m_pScene->GetPlayer()).get()))->FireBullet();
 
 	m_pScene->HandleInput(m_keyDown);
 }

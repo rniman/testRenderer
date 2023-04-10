@@ -50,6 +50,17 @@ void CScene::CreateScene()
 
 CGameObject* CScene::GetPickedObject(const int mx, const int my)
 {
+	XMFLOAT3 pickPosition;
+	pickPosition.x = ((2.0f * mx) /  (float)FRAMEBUFFER_WIDTH - 1) / m_pPlayer->GetCamera().GetPerspectiveProjectMatrix()._11;
+	pickPosition.y = -(((2.0f * my) / (float)FRAMEBUFFER_HEIGHT - 1) / m_pPlayer->GetCamera().GetPerspectiveProjectMatrix()._22);
+	pickPosition.z = 1.0f;
+
+	for (const CGameObject& gameObject : m_gameObjects)
+	{
+
+	}
+
+
 	return nullptr;
 }
 

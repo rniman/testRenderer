@@ -143,7 +143,8 @@ void CCamera::SetCameraMatrix()
 
 void CCamera::SetProjectMatrix(const float nearPlane, const float farPlane)
 {
-	XMStoreFloat4x4A(&m_perspectiveProjectMatrix, XMMatrixPerspectiveFovLH( XMConvertToRadians(m_FOVAngle), m_aspect, nearPlane, farPlane));
+	XMStoreFloat4x4A(&m_perspectiveProjectMatrix, XMMatrixPerspectiveFovLH(XMConvertToRadians(m_FOVAngle), m_aspect, nearPlane, farPlane));
+	BoundingFrustum::CreateFromMatrix(m_frustumCamera, XMLoadFloat4x4A(&m_perspectiveProjectMatrix));
 }
 
 void CCamera::SetCameraProjectMatrix()
@@ -159,6 +160,11 @@ void CCamera::SetFOVAngle(const float FOVAngle)
 void CCamera::SetViewport(const CViewport& viewport)
 {
 	m_viewport = viewport;
+}
+
+void CCamera::SetFrustumWorld()
+{
+	m_frustumCamera.Transform(m_frustumWorld, XMMatrixInverse(nullptr, XMLoadFloat4x4A(&m_cameraMatrix)));
 }
 
 void CCamera::Move(const XMFLOAT3A& shift)
@@ -180,5 +186,6 @@ void CCamera::Update(const float deltaTime)
 	//행렬 설정
 	//SetCameraMatrix();
 	SetCameraProjectMatrix();
+	SetFrustumWorld();
 }
 

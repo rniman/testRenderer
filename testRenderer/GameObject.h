@@ -13,6 +13,7 @@ public:
 	void SetPosition(const XMFLOAT3A& position);
 	void SetMesh(const std::shared_ptr<CMesh>& mesh);
 	void SetColor(const DWORD color);
+	void SetOOBB();
 
 	void AddRotationAngle(const float pitch, const float yaw, const float roll);
 	void AddRotationAngle(const XMFLOAT3A& rotate);
@@ -34,6 +35,8 @@ protected:
 
 	float m_rotationSpeed;
 	float m_moveSpeed;
+
+	BoundingOrientedBox m_OOBB;
 private:
 };
 

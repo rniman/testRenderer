@@ -20,18 +20,18 @@ void CScene::CreateScene()
 
 	std::shared_ptr<CMesh> floorMesh = std::make_shared<CFloor>(200.0f, 0.0f, 200.0f, 20);
 
-	m_gameObjects.emplace_back(CGameObject());
+	m_gameObjects.emplace_back();
 	m_gameObjects[0].SetMesh(floorMesh);
 	m_gameObjects[0].SetColor(RGB(100, 100, 100));
 	m_gameObjects[0].SetPosition(0.0f, 0.0f, 0.0f);
 
 	std::shared_ptr<CMesh> cubeMesh = std::make_shared<CCube>();
-	m_gameObjects.emplace_back(CGameObject());
+	m_gameObjects.emplace_back();
 	m_gameObjects[1].SetMesh(cubeMesh);
 	m_gameObjects[1].SetColor(RGB(0, 0, 255));
 	m_gameObjects[1].SetPosition(0.0f, 0.0f, 15.0f);
 	
-	m_gameObjects.emplace_back(CGameObject());
+	m_gameObjects.emplace_back();
 	m_gameObjects[2].SetMesh(cubeMesh);
 	m_gameObjects[2].SetColor(RGB(0, 255, 255));
 	m_gameObjects[2].SetPosition(10.0f, 2.0f, 15.0f);
@@ -46,6 +46,11 @@ void CScene::CreateScene()
 	std::shared_ptr<CMesh> tankMesh = std::make_shared<CTankMesh>();
 	m_pPlayer->SetMesh(tankMesh);
 	m_pPlayer->SetColor(RGB(0, 120, 0));
+}
+
+CGameObject* CScene::GetPickedObject(const int mx, const int my)
+{
+	return nullptr;
 }
 
 void CScene::HandleInput(DWORD downKey)
@@ -68,6 +73,12 @@ void CScene::Update(const float deltaTime)
 	{
 		m_pPlayer->Update(deltaTime);
 	}
+}
+
+void CScene::Collide()
+{
+	//충돌 처리
+
 }
 
 void CScene::Render(HDC hDCFrameBuffer)

@@ -14,6 +14,7 @@ CGameFramework::CGameFramework()
 	, m_pszFrameRate{}
 	, m_keyDown{}
 	, m_pScene{ nullptr }
+	, m_lockOnObejct{ nullptr }
 {
 }
 
@@ -121,6 +122,11 @@ void CGameFramework::UpdateObjects()
 	m_pScene->Update(m_gameTimer.GetDeltaTime());
 }
 
+void CGameFramework::CollideObjects()
+{
+	m_pScene->Collide();
+}
+
 void CGameFramework::RenderObejcts()
 {
 	ClearFrameBuffer(RGB(0, 0, 0));
@@ -138,6 +144,8 @@ void CGameFramework::FrameAdvance()
 	HandleInput();
 
 	UpdateObjects();
+
+	CollideObjects();
 
 	RenderObejcts();
 
@@ -197,11 +205,14 @@ void CGameFramework::OnMouseMessage(HWND hWnd, UINT message, WPARAM wParam, LPAR
 	case WM_LBUTTONDOWN:
 		SetCapture(hWnd);
 		GetCursorPos(&m_OldCursorPos);
-		//if (message == WM_RBUTTONDOWN)
-		//{
-		//	m_pLockedObject = m_pScene->PickObjectPointedByCursor(LOWORD(lParam), HIWORD(lParam), m_pPlayer->m_pCamera);
-		//	if (m_pLockedObject) m_pLockedObject->SetColor(RGB(0, 0, 0));
-		//}
+		if (message == WM_RBUTTONDOWN)
+		{
+			m_lockOnObejct.reset(m_pScene->GetPickedObject(LOWORD(lParam), HIWORD(lParam)));
+			if (m_lockOnObejct)
+			{
+				m_lockOnObejct->SetColor(RGB(0, 0, 0));
+			}
+		}
 		break;
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:

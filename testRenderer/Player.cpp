@@ -126,8 +126,11 @@ void CPlayer::Update(const float deltaTime)
 	Rotate(deltaTime);
 	Move(deltaTime);
 
+	SetOOBB();
+	
 	m_camera.SetLookTo(m_position, m_look);
 	m_camera.Update(deltaTime);
+
 }
 
 void CPlayer::Render(HDC hDCFrameBuffer)
@@ -194,6 +197,8 @@ void CTankPlayer::Update(const float deltaTime)
 {
 	Rotate(deltaTime);
 	Move(deltaTime);
+
+	SetOOBB();
 
 	XMFLOAT3A eye;
 	XMStoreFloat3A(&eye, XMVector3TransformCoord( XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)));

@@ -10,10 +10,12 @@ public:
 	const std::unique_ptr<CPlayer>& GetPlayer() const;
 
 	void CreateScene();
-	void SetDownKey();
+	
+	CGameObject* GetPickedObject(const int mx, const int my);
 
 	void HandleInput(DWORD);
 	void Update(const float deltaTime = 0.01667f);
+	void Collide();
 	void Render(HDC hDCFrameBuffer);
 
 private:

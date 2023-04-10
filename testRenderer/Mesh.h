@@ -51,11 +51,14 @@ public:
 	CMesh(const int numPolygons);
 	virtual ~CMesh();
 
+	BoundingOrientedBox GetOOBB() const;
+
 	void SetPolygon(const int index, CPolygon& polygon);
 
 	virtual void Render(HDC hDCFrameBuffer);
 
 protected:
+	BoundingOrientedBox m_OOBB;	//모델 좌표계의 바운딩 박스
 	std::vector<std::unique_ptr<CPolygon>> m_polygonsBuffer;
 };
 

@@ -13,7 +13,6 @@ public:
 	
 	void SetCamera(const CCamera& camera);
 	void SetDirection();
-	
 
 	void Rotate(const float deltaTime) override;
 	void Move(const float deltaTime) override;

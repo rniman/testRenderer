@@ -19,6 +19,7 @@ public:
 
 	void HandleInput();
 	void UpdateObjects();
+	void CollideObjects();
 	void RenderObejcts();
 	void FrameAdvance();
 
@@ -44,6 +45,7 @@ private:
 
 	DWORD m_keyDown;
 	std::unique_ptr<CScene> m_pScene;
+	std::unique_ptr<CGameObject> m_lockOnObejct;
 
 	CGameTimer m_gameTimer;
 };

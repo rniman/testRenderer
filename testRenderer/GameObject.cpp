@@ -52,6 +52,12 @@ void CGameObject::SetColor(const DWORD color)
 	m_color = color;
 }
 
+void CGameObject::SetOOBB()
+{
+	m_mesh->GetOOBB().Transform(m_OOBB, XMLoadFloat4x4A(&m_worldMatrix));
+	XMStoreFloat4(&m_OOBB.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_OOBB.Orientation)));
+}
+
 void CGameObject::AddRotationAngle(const float pitch, const float yaw, const float roll)
 {
 	AddRotationAngle(XMFLOAT3A(pitch, yaw, roll));
@@ -76,6 +82,9 @@ void CGameObject::Update(const float deltaTime)
 {
 	Rotate(deltaTime);
 	Move(deltaTime);
+	SetOOBB();
+
+	//충돌 처리
 }
 
 void CGameObject::Render(HDC hDCFrameBuffer)

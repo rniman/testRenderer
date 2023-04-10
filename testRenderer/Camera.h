@@ -56,6 +56,8 @@ public:
 
 	void SetViewport(const CViewport& viewport);
 
+	void SetFrustumWorld();
+
 	void Move(const XMFLOAT3A& shift);
 	void Rotate(const float pitch, const float yaw, const float roll);
 
@@ -75,5 +77,8 @@ private:
 	float m_aspect;
 
 	CViewport m_viewport;
+
+	BoundingFrustum m_frustumCamera;
+	BoundingFrustum m_frustumWorld;
 };
 

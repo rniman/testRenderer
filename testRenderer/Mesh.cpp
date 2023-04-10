@@ -88,10 +88,12 @@ void CPolygon::SetVertex(const int index, const CVertex& vertex)
 /// <CMesh>
 
 CMesh::CMesh()
+	: m_OOBB{ BoundingOrientedBox() }
 {
 }
 
 CMesh::CMesh(const int numPolygons)
+	: m_OOBB{ BoundingOrientedBox() }
 {
 	m_polygonsBuffer.resize(numPolygons);
 	//for (auto& pPolygon : m_polygonsBuffer)
@@ -100,6 +102,11 @@ CMesh::CMesh(const int numPolygons)
 
 CMesh::~CMesh()
 {
+}
+
+BoundingOrientedBox CMesh::GetOOBB() const
+{
+	return m_OOBB;
 }
 
 void CMesh::SetPolygon(const int index, CPolygon& polygon)
@@ -180,6 +187,8 @@ CFloor::CFloor(const float width, const float height, const float depth, const u
 			SetPolygon(index++, *Plane.release());
 		}
 	}
+
+	m_OOBB = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(width / 2, height / 2, depth / 2), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
 CFloor::~CFloor()
@@ -236,7 +245,7 @@ void CFloor::Render(HDC hDCFrameBuffer)
 /// <CCube>
 
 CCube::CCube(const float width, const float height, const float depth)
-	:CMesh(6)
+	: CMesh(6)
 {
 	float halfWidth = width / 2.0f;
 	float halfHeight = height / 2.0f;
@@ -283,6 +292,8 @@ CCube::CCube(const float width, const float height, const float depth)
 	bottomPlane->SetVertex(2, CVertex(-halfWidth, -halfHeight, halfDepth));
 	bottomPlane->SetVertex(3, CVertex(-halfWidth, -halfHeight, -halfDepth));
 	SetPolygon(5, *bottomPlane.release());
+	
+	m_OOBB = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(halfWidth, halfHeight, halfDepth), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
 CCube::~CCube()
@@ -347,6 +358,7 @@ CTankMesh::CTankMesh()
 	bottomPlane->SetVertex(3, CVertex(-halfWidth, -halfHeight, -halfDepth));
 	SetPolygon(5, *bottomPlane.release());
 
+	m_OOBB = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(halfWidth, halfHeight, halfDepth), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
 CTankMesh::~CTankMesh()

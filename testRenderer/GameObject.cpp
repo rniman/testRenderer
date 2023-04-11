@@ -9,6 +9,7 @@ CGameObject::CGameObject()
 	, m_totalRotation{ 0.0f, 0.0f, 0.0f }
 	, m_moveSpeed{ 0.0f }
 	, m_rotationSpeed{ 0.0f }
+	, m_pickingDetection{ true }
 {
 	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixIdentity());
 }
@@ -20,6 +21,11 @@ CGameObject::~CGameObject()
 bool CGameObject::GetActive() const
 {
 	return m_active;
+}
+
+bool CGameObject::GetPickingDetection() const
+{
+	return m_pickingDetection;
 }
 
 void CGameObject::SetPosition(const float x, const float y, const float z)
@@ -52,6 +58,11 @@ void CGameObject::SetColor(const DWORD color)
 	m_color = color;
 }
 
+void CGameObject::SetPickingDetection(const bool detection)
+{
+	m_pickingDetection = detection;
+}
+
 void CGameObject::SetOOBB()
 {
 	m_mesh->GetOOBB().Transform(m_OOBB, XMLoadFloat4x4A(&m_worldMatrix));
@@ -68,9 +79,21 @@ void CGameObject::AddRotationAngle(const XMFLOAT3A& rotate)
 	XMStoreFloat3A(&m_totalRotation, XMLoadFloat3A(&m_totalRotation) + XMLoadFloat3(&rotate));
 }
 
+bool CGameObject::CheckPicking(const XMFLOAT3A& pickPosition, const XMFLOAT4X4A& cameraMatrix, float& distance)
+{
+	XMMATRIX modelMatrix = XMMatrixInverse(nullptr, XMLoadFloat4x4A(&m_worldMatrix) * XMLoadFloat4x4A(&cameraMatrix));
+	
+	XMFLOAT3A cameraPosition{ 0.0f, 0.0f, 0.0f };
+	XMVECTOR cameraOrigin = XMVector3TransformCoord(XMLoadFloat3A(&cameraPosition), modelMatrix);
+	XMVECTOR pickDirection = XMVector3Normalize(XMVector3TransformCoord(XMLoadFloat3A(&pickPosition), modelMatrix) - cameraOrigin);
+	
+	return m_mesh->GetOOBB().Intersects(cameraOrigin, pickDirection, distance);
+	//return m_OOBB.Intersects(cameraOrigin, pickDirection, distance);
+}
+
 void CGameObject::Rotate(const float deltaTime)
 {
-	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * deltaTime * m_rotationSpeed));
+	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(deltaTime * m_rotationSpeed)));
 }
 
 void CGameObject::Move(const float deltaTime)

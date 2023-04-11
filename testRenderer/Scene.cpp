@@ -21,6 +21,7 @@ void CScene::CreateScene()
 	std::shared_ptr<CMesh> floorMesh = std::make_shared<CFloor>(200.0f, 0.0f, 200.0f, 20);
 
 	m_gameObjects.emplace_back();
+	m_gameObjects[0].SetPickingDetection(false);
 	m_gameObjects[0].SetMesh(floorMesh);
 	m_gameObjects[0].SetColor(RGB(100, 100, 100));
 	m_gameObjects[0].SetPosition(0.0f, 0.0f, 0.0f);
@@ -50,18 +51,50 @@ void CScene::CreateScene()
 
 CGameObject* CScene::GetPickedObject(const int mx, const int my)
 {
-	XMFLOAT3 pickPosition;
+	XMFLOAT3A pickPosition;
 	pickPosition.x = ((2.0f * mx) /  (float)FRAMEBUFFER_WIDTH - 1) / m_pPlayer->GetCamera().GetPerspectiveProjectMatrix()._11;
 	pickPosition.y = -(((2.0f * my) / (float)FRAMEBUFFER_HEIGHT - 1) / m_pPlayer->GetCamera().GetPerspectiveProjectMatrix()._22);
 	pickPosition.z = 1.0f;
 
-	for (const CGameObject& gameObject : m_gameObjects)
+	//XMFLOAT3A c = { 0.0f, 0.0f, 0.0f };
+	//XMFLOAT4X4A b = m_pPlayer->GetCamera().GetCameraMatrix();
+	//XMMATRIX a = XMLoadFloat4x4A(&b);
+	//XMFLOAT3A pick;
+	//XMFLOAT3A ca;
+	//XMStoreFloat3A(&pick, XMVector3TransformCoord(XMLoadFloat3A(&pickPosition), XMMatrixInverse(nullptr, a)));
+	//XMStoreFloat3A(&ca, XMVector3TransformCoord(XMLoadFloat3A(&c), XMMatrixInverse(nullptr, a)));
+
+	int pickObjectIndex = -1;
+	int objectIndex = 0;
+	float nearestHitDistance = FLT_MAX;
+	for (CGameObject& gameObject : m_gameObjects)
 	{
+		if (!gameObject.GetPickingDetection())
+		{
+			objectIndex++;
+			continue;
+		}
 
+		float hitDistance = FLT_MAX;
+		if (gameObject.CheckPicking(pickPosition, m_pPlayer->GetCamera().GetCameraMatrix(), hitDistance))
+		{
+			if (hitDistance < nearestHitDistance)
+			{
+				nearestHitDistance = hitDistance;
+				pickObjectIndex = objectIndex;
+			}
+		}
+		objectIndex++;
 	}
-
-
-	return nullptr;
+	
+	if (pickObjectIndex >= 0)
+	{
+		return &m_gameObjects[pickObjectIndex];
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 void CScene::HandleInput(DWORD downKey)

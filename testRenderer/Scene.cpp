@@ -36,7 +36,6 @@ void CScene::CreateScene()
 	m_gameObjects[2].SetMesh(cubeMesh);
 	m_gameObjects[2].SetColor(RGB(0, 255, 255));
 	m_gameObjects[2].SetPosition(0.0f, -2.0f, 20.0f);
-	//m_gameObjects[2].SetPosition(10.0f, 2.0f, 15.0f);
 
 	CCamera newCamera;
 	newCamera.SetPosition(XMFLOAT3A(0.0f, 0.0f, 0.0f));
@@ -48,6 +47,11 @@ void CScene::CreateScene()
 	std::shared_ptr<CMesh> tankMesh = std::make_shared<CTankMesh>();
 	m_pPlayer->SetMesh(tankMesh);
 	m_pPlayer->SetColor(RGB(0, 120, 0));
+
+	std::shared_ptr<CMesh> turretMesh = std::make_shared<CCube>(2.0f, 0.5f, 4.0f);
+	m_pPlayer->GetChild()->SetMesh(turretMesh);
+	m_pPlayer->GetChild()->SetColor(RGB(0, 150, 50));
+	m_pPlayer->GetChild()->SetPosition(0.0f, 1.0f, 0.0f);
 }
 
 CGameObject* CScene::GetPickedObject(const int mx, const int my)

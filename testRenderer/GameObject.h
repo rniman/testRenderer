@@ -7,13 +7,19 @@ public:
 	CGameObject();
 	virtual ~CGameObject();
 
+	CGameObject(const CGameObject& other);
+	CGameObject& operator=(const CGameObject& other);
+
 	bool GetActive() const;
 	bool GetPickingDetection() const;
+	const std::unique_ptr<CGameObject>& GetParent() const;
+	const std::unique_ptr<CGameObject>& GetChild() const;
+	const std::unique_ptr<CGameObject>& GetSibling() const;
 
-	void SetPosition(const float x, const float y, const float z);
-	void SetPosition(const XMFLOAT3A& position);
 	void SetMesh(const std::shared_ptr<CMesh>& mesh);
 	DWORD SetColor(const DWORD color);
+	void SetPosition(const float x, const float y, const float z);
+	void SetPosition(const XMFLOAT3A& position);
 	void SetPickingDetection(const bool detection);
 	void SetOOBB();
 
@@ -30,8 +36,13 @@ public:
 
 protected:
 	bool m_active;
+
 	std::shared_ptr<CMesh> m_mesh;
 	DWORD m_color;
+
+	std::unique_ptr<CGameObject> m_parent;
+	std::unique_ptr<CGameObject> m_child;
+	std::unique_ptr<CGameObject> m_sibling;
 
 	XMFLOAT4X4A m_worldMatrix;
 	XMFLOAT3A m_position;

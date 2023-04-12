@@ -5,6 +5,9 @@ CGameObject::CGameObject()
 	: m_active{ true }
 	, m_mesh{ nullptr }
 	, m_color{ RGB(255, 0, 0) }
+	, m_parent{ nullptr }
+	, m_child{ nullptr }
+	, m_sibling{ nullptr }
 	, m_position{0.0f, 0.0f, 0.0f}
 	, m_totalRotation{ 0.0f, 0.0f, 0.0f }
 	, m_moveSpeed{ 0.0f }
@@ -18,6 +21,17 @@ CGameObject::~CGameObject()
 {
 }
 
+CGameObject::CGameObject(const CGameObject& other)
+{
+	assert(false);
+}
+
+CGameObject& CGameObject::operator=(const CGameObject& other)
+{
+	assert(false);
+	return *this;
+}
+
 bool CGameObject::GetActive() const
 {
 	return m_active;
@@ -26,6 +40,33 @@ bool CGameObject::GetActive() const
 bool CGameObject::GetPickingDetection() const
 {
 	return m_pickingDetection;
+}
+
+const std::unique_ptr<CGameObject>& CGameObject::GetParent() const
+{
+	return m_parent;
+}
+
+const std::unique_ptr<CGameObject>& CGameObject::GetChild() const
+{
+	return m_child;
+}
+
+const std::unique_ptr<CGameObject>& CGameObject::GetSibling() const
+{
+	return m_sibling;
+}
+
+void CGameObject::SetMesh(const std::shared_ptr<CMesh>& mesh)
+{
+	m_mesh = mesh;
+}
+
+DWORD CGameObject::SetColor(const DWORD color)
+{
+	DWORD oldColor = m_color;
+	m_color = color;
+	return oldColor;
 }
 
 void CGameObject::SetPosition(const float x, const float y, const float z)
@@ -46,18 +87,6 @@ void CGameObject::SetPosition(const XMFLOAT3A& position)
 	m_worldMatrix._41 = position.x;
 	m_worldMatrix._42 = position.y;
 	m_worldMatrix._43 = position.z;
-}
-
-void CGameObject::SetMesh(const std::shared_ptr<CMesh>& mesh)
-{
-	m_mesh = mesh;
-}
-
-DWORD CGameObject::SetColor(const DWORD color)
-{
-	DWORD oldColor = m_color;
-	m_color = color;
-	return oldColor;
 }
 
 void CGameObject::SetPickingDetection(const bool detection)

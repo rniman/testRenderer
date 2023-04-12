@@ -185,6 +185,12 @@ CTankPlayer::CTankPlayer()
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_camera.SetPosition(m_cameraOffset);
+
+	std::shared_ptr<CMesh> bulletMesh = std::make_shared<CCube>(2.0f, 2.0f, 2.0f);
+	for (CBulletObject& bullet : m_bullet)
+	{
+		bullet.SetMesh(bulletMesh);
+	}
 }
 
 CTankPlayer::CTankPlayer(const CCamera& camera)
@@ -195,6 +201,8 @@ CTankPlayer::CTankPlayer(const CCamera& camera)
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_camera.SetPosition(m_cameraOffset);
+
+	m_child = std::make_unique<CGameObject>();
 
 	std::shared_ptr<CMesh> bulletMesh = std::make_shared<CCube>(2.0f, 2.0f, 2.0f);
 	for (CBulletObject& bullet : m_bullet)
@@ -268,6 +276,9 @@ void CTankPlayer::Render(HDC hDCFrameBuffer)
 	CGraphicsPipeline::SetWorldMatrix(m_worldMatrix);
 	m_mesh->Render(hDCFrameBuffer);
 	
+	if (m_child) m_child->Render(hDCFrameBuffer);
+	//if (m_sibling) m_sibling->Render(hDCFrameBuffer);
+
 	for ( CBulletObject& bullet : m_bullet)
 	{
 		if (!bullet.GetActive())

@@ -7,10 +7,13 @@ CPlayer::CPlayer()
 	, m_up{ XMFLOAT3A(0.0f,1.0f, 0.0f) }
 	, m_look{ XMFLOAT3A(0.0f,0.0f, 1.0f) }
 	, m_camera()
+	, m_bMoveForce{ false }
 	, m_moveDirection{ 0.0f, 0.0f, 0.0f }
+	, m_acceleration{ 20.0f }
+	, m_friction{ 10.0f }
 {
 	m_rotationSpeed = 5.0f;
-	m_moveSpeed = 5.0f;
+	m_moveSpeed = 0.0f;
 }
 
 CPlayer::CPlayer(const CCamera& camera)
@@ -19,10 +22,13 @@ CPlayer::CPlayer(const CCamera& camera)
 	, m_up{ XMFLOAT3A(0.0f,1.0f, 0.0f) }
 	, m_look{ XMFLOAT3A(0.0f,0.0f, 1.0f) }
 	, m_camera(camera)
+	, m_bMoveForce{ false }
 	, m_moveDirection{ 0.0f, 0.0f, 0.0f }
+	, m_acceleration{ 20.0f }
+	, m_friction{ 10.0f }
 {
 	m_rotationSpeed = 5.0f;
-	m_moveSpeed = 5.0f;
+	m_moveSpeed = 0.0f;
 }
 
 CPlayer::~CPlayer()
@@ -42,6 +48,11 @@ void CPlayer::SetCamera(const CCamera& camera)
 void CPlayer::SetDirection()
 {
 	m_moveDirection = XMFLOAT3A();
+}
+
+void CPlayer::SetInctiveMoveForce()
+{
+	m_bMoveForce = false;
 }
 
 void CPlayer::Rotate(const float deltaTime)
@@ -99,6 +110,29 @@ void CPlayer::Rotate(const float deltaTime)
 
 void CPlayer::Move(const float deltaTime)
 {
+	if (m_bMoveForce)
+	{
+		if (m_moveSpeed < 10.0f)
+		{
+			m_moveSpeed += deltaTime * (m_acceleration - m_friction);
+			if (m_moveSpeed > 10.0f)
+			{
+				m_moveSpeed = 10.0f;
+			}
+		}
+	}
+	else
+	{
+		if (m_moveSpeed > 0.0f)
+		{
+			m_moveSpeed -= deltaTime * m_friction * 2;
+			if (m_moveSpeed < 0.0f)
+			{
+				m_moveSpeed = 0.0f;
+			}
+		}
+	}
+
 	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_moveDirection) * m_moveSpeed * deltaTime));
 
 	m_position.x = m_worldMatrix._41;
@@ -110,6 +144,8 @@ void CPlayer::HandleInput(DWORD direction)
 {
 	if (direction)
 	{
+		SetDirection();
+		m_bMoveForce = true;
 		if (direction & DIR_FORWARD) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_look));
 		if (direction & DIR_BACKWARD) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_look));
 		if (direction & DIR_RIGHT) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_right));

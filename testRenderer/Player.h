@@ -13,6 +13,7 @@ public:
 	
 	void SetCamera(const CCamera& camera);
 	void SetDirection();
+	void SetInctiveMoveForce();
 
 	void Rotate(const float deltaTime) override;
 	void Move(const float deltaTime) override;
@@ -28,7 +29,11 @@ protected:
 	
 	CCamera m_camera;
 
+	bool m_bMoveForce;
 	XMFLOAT3A m_moveDirection;
+
+	float m_friction;
+	float m_acceleration;
 };
 
 /// <CPlayer>

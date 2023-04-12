@@ -35,7 +35,8 @@ void CScene::CreateScene()
 	m_gameObjects.emplace_back();
 	m_gameObjects[2].SetMesh(cubeMesh);
 	m_gameObjects[2].SetColor(RGB(0, 255, 255));
-	m_gameObjects[2].SetPosition(10.0f, 2.0f, 15.0f);
+	m_gameObjects[2].SetPosition(0.0f, -2.0f, 20.0f);
+	//m_gameObjects[2].SetPosition(10.0f, 2.0f, 15.0f);
 
 	CCamera newCamera;
 	newCamera.SetPosition(XMFLOAT3A(0.0f, 0.0f, 0.0f));
@@ -99,9 +100,10 @@ CGameObject* CScene::GetPickedObject(const int mx, const int my)
 
 void CScene::HandleInput(DWORD downKey)
 {
-	m_pPlayer->SetDirection();
+	m_pPlayer->SetInctiveMoveForce();
 	if (downKey)
 	{
+		//m_pPlayer->SetDirection();
 		m_pPlayer->HandleInput(downKey);
 	}
 }

@@ -13,7 +13,7 @@ public:
 	void SetPosition(const float x, const float y, const float z);
 	void SetPosition(const XMFLOAT3A& position);
 	void SetMesh(const std::shared_ptr<CMesh>& mesh);
-	void SetColor(const DWORD color);
+	DWORD SetColor(const DWORD color);
 	void SetPickingDetection(const bool detection);
 	void SetOOBB();
 

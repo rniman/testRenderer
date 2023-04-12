@@ -42,11 +42,13 @@ private:
 	POINT m_OldCursorPos;
 
 	_TCHAR m_pszFrameRate[50];
+	
+	CGameTimer m_gameTimer;
 
 	DWORD m_keyDown;
 	std::unique_ptr<CScene> m_pScene;
+	
 	CGameObject* m_lockOnObejct;
-
-	CGameTimer m_gameTimer;
+	DWORD m_lockOnObjectOriginColor;
 };
 

@@ -15,6 +15,7 @@ CGameFramework::CGameFramework()
 	, m_keyDown{}
 	, m_pScene{ nullptr }
 	, m_lockOnObejct{ nullptr }
+	, m_lockOnObjectOriginColor{ RGB(0,0,0) }
 {
 }
 
@@ -207,10 +208,14 @@ void CGameFramework::OnMouseMessage(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		GetCursorPos(&m_OldCursorPos);
 		if (message == WM_RBUTTONDOWN)
 		{
+			if (m_lockOnObejct)
+			{
+				m_lockOnObejct->SetColor(m_lockOnObjectOriginColor);
+			}
 			m_lockOnObejct = m_pScene->GetPickedObject(LOWORD(lParam), HIWORD(lParam));
 			if (m_lockOnObejct)
 			{
-				m_lockOnObejct->SetColor(RGB(255, 0, 0));
+				m_lockOnObjectOriginColor = m_lockOnObejct->SetColor(RGB(255, 0, 0));
 			}
 		}
 		break;

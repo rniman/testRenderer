@@ -9,8 +9,8 @@ CPlayer::CPlayer()
 	, m_camera()
 	, m_bMoveForce{ false }
 	, m_moveDirection{ 0.0f, 0.0f, 0.0f }
-	, m_acceleration{ 20.0f }
-	, m_friction{ 10.0f }
+	, m_acceleration{ 25.0f }
+	, m_friction{ 15.0f }
 {
 	m_rotationSpeed = 5.0f;
 	m_moveSpeed = 0.0f;
@@ -24,8 +24,8 @@ CPlayer::CPlayer(const CCamera& camera)
 	, m_camera(camera)
 	, m_bMoveForce{ false }
 	, m_moveDirection{ 0.0f, 0.0f, 0.0f }
-	, m_acceleration{ 20.0f }
-	, m_friction{ 10.0f }
+	, m_acceleration{ 25.0f }
+	, m_friction{ 15.0f }
 {
 	m_rotationSpeed = 5.0f;
 	m_moveSpeed = 0.0f;

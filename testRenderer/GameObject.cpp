@@ -53,9 +53,11 @@ void CGameObject::SetMesh(const std::shared_ptr<CMesh>& mesh)
 	m_mesh = mesh;
 }
 
-void CGameObject::SetColor(const DWORD color)
+DWORD CGameObject::SetColor(const DWORD color)
 {
+	DWORD oldColor = m_color;
 	m_color = color;
+	return oldColor;
 }
 
 void CGameObject::SetPickingDetection(const bool detection)

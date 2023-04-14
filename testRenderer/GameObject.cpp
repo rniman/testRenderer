@@ -21,16 +21,16 @@ CGameObject::~CGameObject()
 {
 }
 
-CGameObject::CGameObject(const CGameObject& other)
-{
-	assert(false);
-}
-
-CGameObject& CGameObject::operator=(const CGameObject& other)
-{
-	assert(false);
-	return *this;
-}
+//CGameObject::CGameObject(const CGameObject& other)
+//{
+//	assert(false);
+//}
+//
+//CGameObject& CGameObject::operator=(const CGameObject& other)
+//{
+//	assert(false);
+//	return *this;
+//}
 
 bool CGameObject::GetActive() const
 {
@@ -55,6 +55,11 @@ const std::unique_ptr<CGameObject>& CGameObject::GetChild() const
 const std::unique_ptr<CGameObject>& CGameObject::GetSibling() const
 {
 	return m_sibling;
+}
+
+BoundingOrientedBox CGameObject::GetOOBB() const
+{
+	return m_OOBB;
 }
 
 void CGameObject::SetMesh(const std::shared_ptr<CMesh>& mesh)
@@ -141,7 +146,7 @@ void CGameObject::Update(const float deltaTime)
 	//충돌 처리
 }
 
-void CGameObject::Render(HDC hDCFrameBuffer)
+void CGameObject::Render(HDC hDCFrameBuffer) const
 {
 	if (!m_mesh)
 		return;

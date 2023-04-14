@@ -48,7 +48,7 @@ private:
 	DWORD m_keyDown;
 	std::unique_ptr<CScene> m_pScene;
 	
-	CGameObject* m_lockOnObejct;
+	std::unique_ptr<CGameObject> m_lockOnObejct;
 	DWORD m_lockOnObjectOriginColor;
 };
 

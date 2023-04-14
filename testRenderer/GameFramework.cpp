@@ -55,6 +55,9 @@ void CGameFramework::DestroyGame()
 	{
 		DeleteDC(m_hDCFrameBuffer);
 	}
+	
+	m_lockOnObejct.release();
+	
 }
 
 void CGameFramework::ClearFrameBuffer(DWORD color)
@@ -120,7 +123,7 @@ void CGameFramework::HandleInput()
 
 void CGameFramework::UpdateObjects()
 {
-	m_pScene->Update(m_gameTimer.GetDeltaTime());
+	m_pScene->Update((float)m_gameTimer.GetDeltaTime());
 }
 
 void CGameFramework::CollideObjects()
@@ -211,8 +214,9 @@ void CGameFramework::OnMouseMessage(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			if (m_lockOnObejct)
 			{
 				m_lockOnObejct->SetColor(m_lockOnObjectOriginColor);
+				m_lockOnObejct.release();
 			}
-			m_lockOnObejct = m_pScene->GetPickedObject(LOWORD(lParam), HIWORD(lParam));
+			m_lockOnObejct.reset(m_pScene->GetPickedObject(LOWORD(lParam), HIWORD(lParam)));
 			if (m_lockOnObejct)
 			{
 				m_lockOnObjectOriginColor = m_lockOnObejct->SetColor(RGB(255, 0, 0));

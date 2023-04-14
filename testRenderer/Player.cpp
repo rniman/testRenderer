@@ -169,7 +169,7 @@ void CPlayer::Update(const float deltaTime)
 
 }
 
-void CPlayer::Render(HDC hDCFrameBuffer)
+void CPlayer::Render(HDC hDCFrameBuffer) const
 {
 }
 
@@ -237,7 +237,7 @@ void CTankPlayer::FireBullet()
 	}
 }
 
-void CTankPlayer::Update(const float deltaTime)
+void CTankPlayer::Update(const float deltaTime) 
 {
 	Rotate(deltaTime);
 	Move(deltaTime);
@@ -266,7 +266,7 @@ void CTankPlayer::Update(const float deltaTime)
 	}
 }
 
-void CTankPlayer::Render(HDC hDCFrameBuffer)
+void CTankPlayer::Render(HDC hDCFrameBuffer) const
 {
 	if (!m_mesh)
 		return;
@@ -279,7 +279,7 @@ void CTankPlayer::Render(HDC hDCFrameBuffer)
 	if (m_child) m_child->Render(hDCFrameBuffer);
 	//if (m_sibling) m_sibling->Render(hDCFrameBuffer);
 
-	for ( CBulletObject& bullet : m_bullet)
+	for (const CBulletObject& bullet : m_bullet)
 	{
 		if (!bullet.GetActive())
 		{

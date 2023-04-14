@@ -136,9 +136,9 @@ void CScene::Render(HDC hDCFrameBuffer)
 	CGraphicsPipeline::SetCameraProejectdMatrix(m_pPlayer->GetCamera().GetCameraProjectMatrix());
 	CGraphicsPipeline::SetViewport(m_pPlayer->GetCamera().GetViewport());
 	
-	for (CGameObject& gameObject : m_gameObjects)
+	for (const CGameObject& gameObject : m_gameObjects)
 	{
-		gameObject.Render(hDCFrameBuffer);
+		if (m_pPlayer->GetCamera().GetWorldFrustum().Intersects(gameObject.GetOOBB())) gameObject.Render(hDCFrameBuffer);
 	}
 	
 	m_pPlayer->Render(hDCFrameBuffer);

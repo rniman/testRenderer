@@ -20,7 +20,7 @@ public:
 
 	void HandleInput(DWORD direction);
 	void Update(const float deltaTime) override;
-	void Render(HDC hDCFrameBuffer) override;
+	void Render(HDC hDCFrameBuffer) const override;
 
 protected:
 	XMFLOAT3A m_right;
@@ -52,7 +52,7 @@ public:
 	void FireBullet();
 
 	void Update(const float deltaTime) override;
-	void Render(HDC hDCFrameBuffer) override;
+	void Render(HDC hDCFrameBuffer) const override;
 private:
 	XMFLOAT3A m_cameraOffset;
 	CCamera m_subCamera;

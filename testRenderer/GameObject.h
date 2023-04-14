@@ -7,14 +7,15 @@ public:
 	CGameObject();
 	virtual ~CGameObject();
 
-	CGameObject(const CGameObject& other);
-	CGameObject& operator=(const CGameObject& other);
+	//CGameObject(const CGameObject& other);
+	//CGameObject& operator=(const CGameObject& other);
 
 	bool GetActive() const;
 	bool GetPickingDetection() const;
 	const std::unique_ptr<CGameObject>& GetParent() const;
 	const std::unique_ptr<CGameObject>& GetChild() const;
 	const std::unique_ptr<CGameObject>& GetSibling() const;
+	BoundingOrientedBox GetOOBB() const;
 
 	void SetMesh(const std::shared_ptr<CMesh>& mesh);
 	DWORD SetColor(const DWORD color);
@@ -32,7 +33,7 @@ public:
 	virtual void Move(const float deltaTime);
 
 	virtual void Update(const float deltaTime);
-	virtual void Render(HDC hDCFrameBuffer);
+	virtual void Render(HDC hDCFrameBuffer) const;
 
 protected:
 	bool m_active;

@@ -92,6 +92,11 @@ XMFLOAT4X4A CCamera::GetPerspectiveProjectMatrix() const
 	return m_perspectiveProjectMatrix;
 }
 
+BoundingFrustum CCamera::GetWorldFrustum() const
+{
+	return m_frustumWorld;
+}
+
 
 void CCamera::SetPosition(const XMFLOAT3A& position)
 {

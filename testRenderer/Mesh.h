@@ -29,8 +29,8 @@ public:
 	CPolygon(const CPolygon& other);
 	CPolygon& operator=(const CPolygon& other);
 
-	CPolygon(CPolygon&& polygon);
-	CPolygon& operator=(CPolygon&& other);
+	CPolygon(CPolygon&& polygon) noexcept;
+	CPolygon& operator=(CPolygon&& other) noexcept;
 
 	std::vector<CVertex> GetBuffer() const;
 

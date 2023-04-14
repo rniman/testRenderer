@@ -7,9 +7,10 @@ public:
 	CScene();
 	~CScene();
 
-	const std::unique_ptr<CPlayer>& GetPlayer() const;
+	CPlayer* GetPlayer() const;
 
 	void CreateScene();
+	void DestroyScene();
 	
 	CGameObject* GetPickedObject(const int mx, const int my);
 
@@ -20,6 +21,6 @@ public:
 
 private:
 	std::vector<CGameObject> m_gameObjects;
-	std::unique_ptr<CPlayer> m_pPlayer;
+	CPlayer* m_pPlayer{ nullptr };
 };
 

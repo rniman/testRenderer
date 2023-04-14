@@ -167,9 +167,17 @@ void CPlayer::Update(const float deltaTime)
 	m_camera.SetLookTo(m_position, m_look);
 	m_camera.Update(deltaTime);
 
+	if (m_sibling)
+	{
+		m_sibling->Update(deltaTime);
+	}
+	if (m_child)
+	{
+		m_child->Update(deltaTime);
+	}
 }
 
-void CPlayer::Render(HDC hDCFrameBuffer) const
+void CPlayer::Render(HDC hDCFrameBuffer)
 {
 }
 
@@ -180,11 +188,18 @@ void CPlayer::Render(HDC hDCFrameBuffer) const
 CTankPlayer::CTankPlayer()
 	: CPlayer()
 	, m_cameraOffset{ 0.0f, 10.0f, -30.0f }
+	, m_turret{ nullptr }
+	, m_gun{ nullptr }
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_camera.SetPosition(m_cameraOffset);
+
+	m_child = new CGameObject();
+	m_turret = m_child;
+	m_turret->SetParent(*this);
+	m_turret->SetRotationSpeed(m_rotationSpeed);
 
 	std::shared_ptr<CMesh> bulletMesh = std::make_shared<CCube>(2.0f, 2.0f, 2.0f);
 	for (CBulletObject& bullet : m_bullet)
@@ -196,13 +211,18 @@ CTankPlayer::CTankPlayer()
 CTankPlayer::CTankPlayer(const CCamera& camera)
 	: CPlayer(camera)
 	, m_cameraOffset{ 0.0f, 10.0f, -30.0f }
+	, m_turret{ nullptr }
+	, m_gun{ nullptr }
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_camera.SetPosition(m_cameraOffset);
-
-	m_child = std::make_unique<CGameObject>();
+	
+	m_child = new CGameObject();
+	m_turret = m_child;
+	m_turret->SetParent(*this);
+	m_turret->SetRotationSpeed(m_rotationSpeed);
 
 	std::shared_ptr<CMesh> bulletMesh = std::make_shared<CCube>(2.0f, 2.0f, 2.0f);
 	for (CBulletObject& bullet : m_bullet)
@@ -211,8 +231,10 @@ CTankPlayer::CTankPlayer(const CCamera& camera)
 	}
 }
 
-CTankPlayer::~CTankPlayer()
+CTankPlayer::~CTankPlayer() 
 {
+	m_turret = nullptr;
+	m_gun = nullptr;
 }
 
 void CTankPlayer::FireBullet()
@@ -255,6 +277,15 @@ void CTankPlayer::Update(const float deltaTime)
 		m_coolTime -= deltaTime;
 	}
 
+	if (m_sibling)
+	{
+		m_sibling->Update(deltaTime);
+	}
+	if (m_child)
+	{
+		m_child->Update(deltaTime);
+	}
+
 	for (CBulletObject& bullet : m_bullet)
 	{
 		if (!bullet.GetActive())
@@ -266,7 +297,7 @@ void CTankPlayer::Update(const float deltaTime)
 	}
 }
 
-void CTankPlayer::Render(HDC hDCFrameBuffer) const
+void CTankPlayer::Render(HDC hDCFrameBuffer)
 {
 	if (!m_mesh)
 		return;
@@ -277,9 +308,9 @@ void CTankPlayer::Render(HDC hDCFrameBuffer) const
 	m_mesh->Render(hDCFrameBuffer);
 	
 	if (m_child) m_child->Render(hDCFrameBuffer);
-	//if (m_sibling) m_sibling->Render(hDCFrameBuffer);
+	if (m_sibling) m_sibling->Render(hDCFrameBuffer);
 
-	for (const CBulletObject& bullet : m_bullet)
+	for (CBulletObject& bullet : m_bullet)
 	{
 		if (!bullet.GetActive())
 		{

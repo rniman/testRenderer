@@ -54,14 +54,14 @@ CPolygon& CPolygon::operator=(const CPolygon& other)
 	return *this;
 }
 
-CPolygon::CPolygon(CPolygon&& other)
+CPolygon::CPolygon(CPolygon&& other) noexcept
 {
 	m_verticesBuffer = other.m_verticesBuffer;
 
 	other.m_verticesBuffer.clear();
 }
 
-CPolygon& CPolygon::operator=(CPolygon&& other)
+CPolygon& CPolygon::operator=(CPolygon&& other) noexcept
 {
 	m_verticesBuffer = other.m_verticesBuffer;
 
@@ -173,10 +173,10 @@ CFloor::CFloor(const float width, const float height, const float depth, const u
 	float smallWidth = width / divideNum;
 	float smallDepth = depth / divideNum;
 
-	int index = 0;
-	for (int i = 0; i < divideNum; ++i)
+	unsigned index = 0;
+	for (unsigned i = 0; i < divideNum; ++i)
 	{
-		for (int j = 0; j < divideNum; ++j)
+		for (unsigned j = 0; j < divideNum; ++j)
 		{
 			std::unique_ptr<CPolygon> Plane = std::make_unique<CPolygon>(4);
 			Plane->SetVertex(0, CVertex(-width / 2 + smallWidth * (i + 1), 0.0f, depth / 2 - smallDepth * j));

@@ -2,14 +2,21 @@
 #include "Scene.h"
 
 CScene::CScene()
+	: m_gameObjects{}
+	, m_pPlayer{ nullptr }
 {
 }
 
 CScene::~CScene()
 {
+	if (m_pPlayer)
+	{
+		delete m_pPlayer;
+		m_pPlayer = nullptr;
+	}
 }
 
-const std::unique_ptr<CPlayer>& CScene::GetPlayer() const
+CPlayer* CScene::GetPlayer() const
 {
 	return m_pPlayer;
 }
@@ -43,15 +50,20 @@ void CScene::CreateScene()
 	newCamera.SetProjectMatrix(1.0f, 100.0f);
 	newCamera.SetCameraProjectMatrix();
 
-	m_pPlayer = std::make_unique<CTankPlayer>(newCamera);
+	m_pPlayer = new CTankPlayer(newCamera);
 	std::shared_ptr<CMesh> tankMesh = std::make_shared<CTankMesh>();
 	m_pPlayer->SetMesh(tankMesh);
 	m_pPlayer->SetColor(RGB(0, 120, 0));
 
-	std::shared_ptr<CMesh> turretMesh = std::make_shared<CCube>(2.0f, 0.5f, 4.0f);
+	std::shared_ptr<CMesh> turretMesh = std::make_shared<CCube>(3.0f, 3.0f, 5.0f);
 	m_pPlayer->GetChild()->SetMesh(turretMesh);
 	m_pPlayer->GetChild()->SetColor(RGB(0, 150, 50));
-	m_pPlayer->GetChild()->SetPosition(0.0f, 1.0f, 0.0f);
+	m_pPlayer->GetChild()->SetPosition(0.0f, 2.5f, -2.0f);
+}
+
+void CScene::DestroyScene()
+{
+	delete m_pPlayer;
 }
 
 CGameObject* CScene::GetPickedObject(const int mx, const int my)
@@ -114,14 +126,14 @@ void CScene::HandleInput(DWORD downKey)
 
 void CScene::Update(const float deltaTime)
 {
-	for (CGameObject& gameObject : m_gameObjects)
-	{
-		gameObject.Update(deltaTime);
-	}
-
 	if (m_pPlayer)
 	{
 		m_pPlayer->Update(deltaTime);
+	}
+
+	for (CGameObject& gameObject : m_gameObjects)
+	{
+		gameObject.Update(deltaTime);
 	}
 }
 
@@ -136,7 +148,7 @@ void CScene::Render(HDC hDCFrameBuffer)
 	CGraphicsPipeline::SetCameraProejectdMatrix(m_pPlayer->GetCamera().GetCameraProjectMatrix());
 	CGraphicsPipeline::SetViewport(m_pPlayer->GetCamera().GetViewport());
 	
-	for (const CGameObject& gameObject : m_gameObjects)
+	for (CGameObject& gameObject : m_gameObjects)
 	{
 		if (m_pPlayer->GetCamera().GetWorldFrustum().Intersects(gameObject.GetOOBB())) gameObject.Render(hDCFrameBuffer);
 	}

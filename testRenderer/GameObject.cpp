@@ -19,18 +19,53 @@ CGameObject::CGameObject()
 
 CGameObject::~CGameObject()
 {
+	delete m_child;
+	m_child = nullptr;	
+
+	delete m_sibling;
+	m_sibling = nullptr;
 }
 
-//CGameObject::CGameObject(const CGameObject& other)
-//{
-//	assert(false);
-//}
-//
-//CGameObject& CGameObject::operator=(const CGameObject& other)
-//{
-//	assert(false);
-//	return *this;
-//}
+CGameObject::CGameObject(CGameObject&& other) noexcept
+{
+	m_active = other.m_active;
+	m_mesh = std::move(other.m_mesh);
+	m_color = other.m_color;
+	m_parent = other.m_parent;
+	m_child = other.m_child;
+	m_sibling = other.m_sibling;
+	m_position = other.m_position;
+	m_totalRotation = other.m_totalRotation;
+	m_moveSpeed = other.m_moveSpeed;
+	m_rotationSpeed = other.m_rotationSpeed;
+	m_pickingDetection = other.m_pickingDetection;
+
+	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&other.m_worldMatrix));
+
+	other.reset();
+}
+
+CGameObject& CGameObject::operator=(CGameObject&& other) noexcept
+{
+	if (this == &other)
+	{
+		return *this;
+	}
+
+	m_active = other.m_active;
+	m_mesh = std::move(other.m_mesh);
+	m_color = other.m_color;
+	m_parent = other.m_parent;
+	m_child = other.m_child;
+	m_sibling = other.m_sibling;
+	m_position = other.m_position;
+	m_totalRotation = other.m_totalRotation;
+	m_moveSpeed = other.m_moveSpeed;
+	m_rotationSpeed = other.m_rotationSpeed;
+	m_pickingDetection = other.m_pickingDetection;
+
+	return *this;
+}
 
 bool CGameObject::GetActive() const
 {
@@ -42,19 +77,34 @@ bool CGameObject::GetPickingDetection() const
 	return m_pickingDetection;
 }
 
-const std::unique_ptr<CGameObject>& CGameObject::GetParent() const
+CGameObject* CGameObject::GetParent() const
 {
 	return m_parent;
 }
 
-const std::unique_ptr<CGameObject>& CGameObject::GetChild() const
+CGameObject* CGameObject::GetChild() const
 {
 	return m_child;
 }
 
-const std::unique_ptr<CGameObject>& CGameObject::GetSibling() const
+CGameObject* CGameObject::GetSibling() const
 {
 	return m_sibling;
+}
+
+XMFLOAT4X4A CGameObject::GetWorldMatrix() const
+{
+	return m_worldMatrix;
+}
+
+XMFLOAT3A CGameObject::GetPosition() const
+{
+	return m_position;
+}
+
+XMFLOAT3A CGameObject::GetTotalRotation() const
+{
+	return m_totalRotation;
 }
 
 BoundingOrientedBox CGameObject::GetOOBB() const
@@ -72,6 +122,21 @@ DWORD CGameObject::SetColor(const DWORD color)
 	DWORD oldColor = m_color;
 	m_color = color;
 	return oldColor;
+}
+
+void CGameObject::SetParent(CGameObject& parent)
+{
+	m_parent = &parent;
+}
+
+void CGameObject::SetChild(CGameObject& child)
+{
+	m_child = &child;
+}
+
+void CGameObject::SetSibling(CGameObject& sibling)
+{
+	m_sibling = &sibling;
 }
 
 void CGameObject::SetPosition(const float x, const float y, const float z)
@@ -92,6 +157,16 @@ void CGameObject::SetPosition(const XMFLOAT3A& position)
 	m_worldMatrix._41 = position.x;
 	m_worldMatrix._42 = position.y;
 	m_worldMatrix._43 = position.z;
+}
+
+void CGameObject::SetRotationSpeed(const float rotationSpeed)
+{
+	m_rotationSpeed = rotationSpeed;
+}
+
+void CGameObject::SetMoveSpeed(const float moveSpeed)
+{
+	m_moveSpeed = moveSpeed;
 }
 
 void CGameObject::SetPickingDetection(const bool detection)
@@ -129,24 +204,55 @@ bool CGameObject::CheckPicking(const XMFLOAT3A& pickPosition, const XMFLOAT4X4A&
 
 void CGameObject::Rotate(const float deltaTime)
 {
-	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(deltaTime * m_rotationSpeed)));
+	if (!m_parent)
+	{
+		XMStoreFloat4x4A(&m_worldMatrix, XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(deltaTime * m_rotationSpeed)));
+	}
+	else
+	{
+		XMFLOAT3A parentRotation = m_parent->GetTotalRotation();
+		XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixRotationRollPitchYawFromVector((XMLoadFloat3A(&parentRotation) + XMLoadFloat3A(&m_totalRotation)) * XMConvertToRadians(deltaTime * m_rotationSpeed)));
+	}
 }
 
 void CGameObject::Move(const float deltaTime)
 {
-	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
+	if (!m_parent)
+	{
+		XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
+	}
+	else
+	{
+		XMFLOAT3A parentPositon = m_parent->GetPosition();
+		XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&parentPositon)));
+	}
 }
 
 void CGameObject::Update(const float deltaTime)
 {
+	if (m_parent)
+	{
+		XMStoreFloat4x4A(&m_worldMatrix, XMMatrixIdentity());
+		XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
+	}
+
 	Rotate(deltaTime);
 	Move(deltaTime);
 	SetOOBB();
 
+	if (m_sibling)
+	{
+		m_sibling->Update(deltaTime);
+	}
+	if (m_child)
+	{
+		m_child->Update(deltaTime);
+	}
+
 	//충돌 처리
 }
 
-void CGameObject::Render(HDC hDCFrameBuffer) const
+void CGameObject::Render(HDC hDCFrameBuffer) 
 {
 	if (!m_mesh)
 		return;
@@ -158,4 +264,19 @@ void CGameObject::Render(HDC hDCFrameBuffer) const
 
 	SelectObject(hDCFrameBuffer, hOldPen);
 	DeleteObject(hPen);
+}
+
+void CGameObject::reset()
+{
+	m_active = true;
+	m_mesh = nullptr;
+	m_color = RGB(255, 0, 0);
+	m_parent = nullptr;
+	m_child = nullptr;
+	m_sibling = nullptr;
+	m_position = { 0.0f, 0.0f, 0.0f };
+	m_totalRotation = { 0.0f, 0.0f, 0.0f };
+	m_moveSpeed = 0.0f;
+	m_rotationSpeed = 0.0f;
+	m_pickingDetection = true;
 }

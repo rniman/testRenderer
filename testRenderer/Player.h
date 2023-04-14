@@ -7,7 +7,7 @@ class CPlayer : public CGameObject
 public:
 	CPlayer();
 	CPlayer(const CCamera& camera);
-	virtual ~CPlayer();
+	virtual ~CPlayer() override;
 	
 	CCamera GetCamera() const;
 	
@@ -20,7 +20,7 @@ public:
 
 	void HandleInput(DWORD direction);
 	void Update(const float deltaTime) override;
-	void Render(HDC hDCFrameBuffer) const override;
+	void Render(HDC hDCFrameBuffer) override;
 
 protected:
 	XMFLOAT3A m_right;
@@ -47,16 +47,19 @@ class CTankPlayer : public CPlayer
 public:
 	CTankPlayer();
 	CTankPlayer(const CCamera& camera);
-	virtual ~CTankPlayer();
+	~CTankPlayer() override;
 
 	void FireBullet();
 
 	void Update(const float deltaTime) override;
-	void Render(HDC hDCFrameBuffer) const override;
+	void Render(HDC hDCFrameBuffer) override;
 private:
 	XMFLOAT3A m_cameraOffset;
 	CCamera m_subCamera;
 	bool m_bMainCamera;
+
+	CGameObject* m_turret;
+	CGameObject* m_gun;
 
 	std::vector<CBulletObject> m_bullet;
 	float m_coolTime;

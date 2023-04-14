@@ -7,20 +7,32 @@ public:
 	CGameObject();
 	virtual ~CGameObject();
 
-	//CGameObject(const CGameObject& other);
-	//CGameObject& operator=(const CGameObject& other);
+	CGameObject(CGameObject&& other) noexcept;
+	CGameObject& operator=(CGameObject&& other) noexcept;
+
+	CGameObject(const CGameObject& other) = delete;
+	CGameObject& operator=(const CGameObject& other) = delete;
 
 	bool GetActive() const;
 	bool GetPickingDetection() const;
-	const std::unique_ptr<CGameObject>& GetParent() const;
-	const std::unique_ptr<CGameObject>& GetChild() const;
-	const std::unique_ptr<CGameObject>& GetSibling() const;
+	CGameObject* GetParent() const;
+	CGameObject* GetChild() const;
+	CGameObject* GetSibling() const;
+	XMFLOAT4X4A GetWorldMatrix()const;
+	XMFLOAT3A GetPosition() const;
+	XMFLOAT3A GetTotalRotation() const;
 	BoundingOrientedBox GetOOBB() const;
 
 	void SetMesh(const std::shared_ptr<CMesh>& mesh);
 	DWORD SetColor(const DWORD color);
+	void SetParent(CGameObject& parent);
+	void SetChild(CGameObject& child);
+	void SetSibling(CGameObject& sibling);
 	void SetPosition(const float x, const float y, const float z);
 	void SetPosition(const XMFLOAT3A& position);
+	void SetRotationSpeed(const float rotationSpeed);
+	void SetMoveSpeed(const float moveSpeed);
+
 	void SetPickingDetection(const bool detection);
 	void SetOOBB();
 
@@ -33,7 +45,9 @@ public:
 	virtual void Move(const float deltaTime);
 
 	virtual void Update(const float deltaTime);
-	virtual void Render(HDC hDCFrameBuffer) const;
+	virtual void Render(HDC hDCFrameBuffer);
+
+	void reset();
 
 protected:
 	bool m_active;
@@ -41,9 +55,9 @@ protected:
 	std::shared_ptr<CMesh> m_mesh;
 	DWORD m_color;
 
-	std::unique_ptr<CGameObject> m_parent;
-	std::unique_ptr<CGameObject> m_child;
-	std::unique_ptr<CGameObject> m_sibling;
+	CGameObject* m_parent;
+	CGameObject* m_child;
+	CGameObject* m_sibling;
 
 	XMFLOAT4X4A m_worldMatrix;
 	XMFLOAT3A m_position;
@@ -54,7 +68,6 @@ protected:
 
 	bool m_pickingDetection;
 	BoundingOrientedBox m_OOBB;
-private:
 };
 
 

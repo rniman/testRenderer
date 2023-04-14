@@ -116,7 +116,7 @@ void CGameFramework::HandleInput()
 	if (GetAsyncKeyState(VK_Q) & 0x8000) m_keyDown |= DIR_UP;
 	if (GetAsyncKeyState(VK_E) & 0x8000) m_keyDown |= DIR_DOWN;
 
-	if (GetAsyncKeyState(VK_SPACE) & 0x8000) (static_cast<CTankPlayer*>((m_pScene->GetPlayer()).get()))->FireBullet();
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000) (static_cast<CTankPlayer*>((m_pScene->GetPlayer())))->FireBullet();
 
 	m_pScene->HandleInput(m_keyDown);
 }

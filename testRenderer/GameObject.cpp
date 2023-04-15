@@ -204,41 +204,29 @@ bool CGameObject::CheckPicking(const XMFLOAT3A& pickPosition, const XMFLOAT4X4A&
 
 void CGameObject::Rotate(const float deltaTime)
 {
-	if (!m_parent)
-	{
-		XMStoreFloat4x4A(&m_worldMatrix, XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(deltaTime * m_rotationSpeed)));
-	}
-	else
-	{
-		XMFLOAT3A parentRotation = m_parent->GetTotalRotation();
-		XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixRotationRollPitchYawFromVector((XMLoadFloat3A(&parentRotation) + XMLoadFloat3A(&m_totalRotation)) * XMConvertToRadians(deltaTime * m_rotationSpeed)));
-	}
+	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(deltaTime * m_rotationSpeed)));
 }
 
 void CGameObject::Move(const float deltaTime)
 {
-	if (!m_parent)
-	{
-		XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
-	}
-	else
-	{
-		XMFLOAT3A parentPositon = m_parent->GetPosition();
-		XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&parentPositon)));
-	}
+	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
+
+	m_position.x = m_worldMatrix._41;
+	m_position.y = m_worldMatrix._42;
+	m_position.z = m_worldMatrix._43;
 }
 
 void CGameObject::Update(const float deltaTime)
 {
-	if (m_parent)
-	{
-		XMStoreFloat4x4A(&m_worldMatrix, XMMatrixIdentity());
-		XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
-	}
-
 	Rotate(deltaTime);
 	Move(deltaTime);
 	SetOOBB();
+
+	if (m_parent)
+	{
+		XMFLOAT4X4A parentWorld = m_parent->GetWorldMatrix();
+		XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMLoadFloat4x4A(&parentWorld));
+	}
 
 	if (m_sibling)
 	{
@@ -261,6 +249,9 @@ void CGameObject::Render(HDC hDCFrameBuffer)
 
 	CGraphicsPipeline::SetWorldMatrix(m_worldMatrix);
 	m_mesh->Render(hDCFrameBuffer);
+
+	if (m_child) m_child->Render(hDCFrameBuffer);
+	if (m_sibling) m_sibling->Render(hDCFrameBuffer);
 
 	SelectObject(hDCFrameBuffer, hOldPen);
 	DeleteObject(hPen);

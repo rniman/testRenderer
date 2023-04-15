@@ -9,8 +9,8 @@ CBulletObject::CBulletObject()
 	m_active = false;
 	m_color = RGB(200, 170, 100);
 
-	m_rotationSpeed = 100.0f;
-	m_moveSpeed = 10.0f;
+	m_rotationSpeed = 720.0f;
+	m_moveSpeed = 100.0f;
 }
 
 CBulletObject::~CBulletObject()

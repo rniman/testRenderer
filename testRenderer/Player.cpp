@@ -11,6 +11,7 @@ CPlayer::CPlayer()
 	, m_moveDirection{ 0.0f, 0.0f, 0.0f }
 	, m_acceleration{ 25.0f }
 	, m_friction{ 15.0f }
+	, m_cameraRotation{ 0.0f, 0.0f, 0.0f }
 {
 	m_rotationSpeed = 5.0f;
 	m_moveSpeed = 0.0f;
@@ -26,6 +27,7 @@ CPlayer::CPlayer(const CCamera& camera)
 	, m_moveDirection{ 0.0f, 0.0f, 0.0f }
 	, m_acceleration{ 25.0f }
 	, m_friction{ 15.0f }
+	, m_cameraRotation{ 0.0f, 0.0f, 0.0f }
 {
 	m_rotationSpeed = 5.0f;
 	m_moveSpeed = 0.0f;
@@ -50,9 +52,21 @@ void CPlayer::SetDirection()
 	m_moveDirection = XMFLOAT3A();
 }
 
-void CPlayer::SetInctiveMoveForce()
+void CPlayer::SetInactiveMoveForce()
 {
 	m_bMoveForce = false;
+}
+
+void CPlayer::AddRotationAngle(const float pitch, const float yaw, const float roll)
+{
+	CGameObject::AddRotationAngle(pitch, yaw, roll);
+}
+
+void CPlayer::AddCameraRotation(const float pitch, const float yaw, const float roll)
+{
+	m_cameraRotation.x += pitch;
+	m_cameraRotation.y += yaw;
+	m_cameraRotation.z += roll;
 }
 
 void CPlayer::Rotate(const float deltaTime)
@@ -188,6 +202,7 @@ void CPlayer::Render(HDC hDCFrameBuffer)
 CTankPlayer::CTankPlayer()
 	: CPlayer()
 	, m_cameraOffset{ 0.0f, 10.0f, -30.0f }
+	, m_bMainCamera{ true }
 	, m_turret{ nullptr }
 	, m_gun{ nullptr }
 	, m_bullet(MAX_BULLET)
@@ -211,6 +226,7 @@ CTankPlayer::CTankPlayer()
 CTankPlayer::CTankPlayer(const CCamera& camera)
 	: CPlayer(camera)
 	, m_cameraOffset{ 0.0f, 10.0f, -30.0f }
+	, m_bMainCamera{ true }
 	, m_turret{ nullptr }
 	, m_gun{ nullptr }
 	, m_bullet(MAX_BULLET)
@@ -219,12 +235,17 @@ CTankPlayer::CTankPlayer(const CCamera& camera)
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_camera.SetPosition(m_cameraOffset);
 	
-	m_child = new CGameObject();
-	m_turret = m_child;
+	m_turret = new CGameObject();
+	m_child = m_turret;
 	m_turret->SetParent(*this);
 	m_turret->SetRotationSpeed(m_rotationSpeed);
 
-	std::shared_ptr<CMesh> bulletMesh = std::make_shared<CCube>(2.0f, 2.0f, 2.0f);
+	m_gun = new CGameObject();
+	m_child->SetChild(*m_gun);
+	m_gun->SetParent(*m_child);
+	m_gun->SetRotationSpeed(m_rotationSpeed);
+
+	std::shared_ptr<CMesh> bulletMesh = std::make_shared<CCube>(1.0f, 1.0f, 1.0f);
 	for (CBulletObject& bullet : m_bullet)
 	{
 		bullet.SetMesh(bulletMesh);
@@ -235,6 +256,18 @@ CTankPlayer::~CTankPlayer()
 {
 	m_turret = nullptr;
 	m_gun = nullptr;
+}
+
+void CTankPlayer::AddRotationAngle(const float pitch, const float yaw, const float roll)
+{
+	CPlayer::AddRotationAngle(pitch, yaw, roll);
+	m_bMainCamera = true;
+}
+
+void CTankPlayer::AddCameraRotation(const float pitch, const float yaw, const float roll)
+{
+	CPlayer::AddCameraRotation(pitch, yaw, roll);
+	m_bMainCamera = false;
 }
 
 void CTankPlayer::FireBullet()
@@ -252,9 +285,14 @@ void CTankPlayer::FireBullet()
 		}
 
 		bullet.SetActive();
-		bullet.SetPosition(m_position);
+
+		XMFLOAT3A firePosition = m_gun->GetPosition();
+		XMFLOAT4X4A gunParentWorld = m_gun->GetParent()->GetWorldMatrix();
+		XMStoreFloat3A(&firePosition, XMVector3TransformCoord(XMLoadFloat3(&firePosition), XMLoadFloat4x4A(&gunParentWorld)));
+		bullet.SetPosition(firePosition);
+
 		bullet.SetForward(m_look);
-		m_coolTime = 3.0f;
+		m_coolTime = 2.0f;
 		break;
 	}
 }
@@ -263,19 +301,23 @@ void CTankPlayer::Update(const float deltaTime)
 {
 	Rotate(deltaTime);
 	Move(deltaTime);
-
 	SetOOBB();
 
 	XMFLOAT3A eye;
-	XMStoreFloat3A(&eye, XMVector3TransformCoord( XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)));
-
-	m_camera.SetLookTo(eye, m_look, m_up);
-	m_camera.Update(deltaTime);
-
-	if (m_coolTime > 0.0f)
+	if (m_bMainCamera)
 	{
-		m_coolTime -= deltaTime;
+		XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)));
+		XMFLOAT3A look;
+		XMStoreFloat3(&look, XMVector3Normalize(XMVectorSubtract(XMLoadFloat3A(&m_position), XMLoadFloat3(&eye))));
+		m_camera.SetLookTo(eye, look, m_up);
 	}
+	else
+	{
+		XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_cameraRotation) * XMConvertToRadians(m_rotationSpeed * deltaTime))));
+		XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&eye), XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position))));
+		m_camera.SetLookAt(eye, m_position, m_up);
+	}
+	m_camera.Update(deltaTime);
 
 	if (m_sibling)
 	{
@@ -284,6 +326,11 @@ void CTankPlayer::Update(const float deltaTime)
 	if (m_child)
 	{
 		m_child->Update(deltaTime);
+	}
+
+	if (m_coolTime > 0.0f)
+	{
+		m_coolTime -= deltaTime;
 	}
 
 	for (CBulletObject& bullet : m_bullet)

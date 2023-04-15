@@ -102,8 +102,14 @@ void CGameFramework::HandleInput()
 		SetCursorPos(m_OldCursorPos.x, m_OldCursorPos.y);
 		if (cxMouseDelta || cyMouseDelta)
 		{
-			if(GetAsyncKeyState(VK_LBUTTON) & 0x8000) m_pScene->GetPlayer()->AddRotationAngle(cyMouseDelta, cxMouseDelta, 0.0f);
-			//if(GetAsyncKeyState(VK_RBUTTON) & 0x8000) m_pScene->GetPlayer()->SetRotationAngle(cyMouseDelta, 0.0f, -cxMouseDelta);
+			if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+			{
+				m_pScene->GetPlayer()->AddRotationAngle(cyMouseDelta, cxMouseDelta, 0.0f);
+			}
+			if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
+			{
+				m_pScene->GetPlayer()->AddCameraRotation(cyMouseDelta, cxMouseDelta, 0.0f);
+			}
 		}
 	}
 

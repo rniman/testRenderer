@@ -13,14 +13,17 @@ public:
 	
 	void SetCamera(const CCamera& camera);
 	void SetDirection();
-	void SetInctiveMoveForce();
+	void SetInactiveMoveForce();
+
+	virtual void AddRotationAngle(const float pitch, const float yaw, const float roll) override;
+	virtual void AddCameraRotation(const float pitch, const float yaw, const float roll);
 
 	void Rotate(const float deltaTime) override;
 	void Move(const float deltaTime) override;
 
 	void HandleInput(DWORD direction);
-	void Update(const float deltaTime) override;
-	void Render(HDC hDCFrameBuffer) override;
+	virtual void Update(const float deltaTime) override;
+	virtual void Render(HDC hDCFrameBuffer) override;
 
 protected:
 	XMFLOAT3A m_right;
@@ -28,6 +31,7 @@ protected:
 	XMFLOAT3A m_look;
 	
 	CCamera m_camera;
+	XMFLOAT3A m_cameraRotation;
 
 	bool m_bMoveForce;
 	XMFLOAT3A m_moveDirection;
@@ -49,6 +53,8 @@ public:
 	CTankPlayer(const CCamera& camera);
 	~CTankPlayer() override;
 
+	virtual void AddRotationAngle(const float pitch, const float yaw, const float roll) override;
+	virtual void AddCameraRotation(const float pitch, const float yaw, const float roll) override;
 	void FireBullet();
 
 	void Update(const float deltaTime) override;
@@ -63,4 +69,5 @@ private:
 
 	std::vector<CBulletObject> m_bullet;
 	float m_coolTime;
+
 };

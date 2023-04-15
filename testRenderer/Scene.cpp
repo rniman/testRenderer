@@ -55,10 +55,15 @@ void CScene::CreateScene()
 	m_pPlayer->SetMesh(tankMesh);
 	m_pPlayer->SetColor(RGB(0, 120, 0));
 
-	std::shared_ptr<CMesh> turretMesh = std::make_shared<CCube>(3.0f, 3.0f, 5.0f);
+	std::shared_ptr<CMesh> turretMesh = std::make_shared<CCube>(3.0f, 4.0f, 5.0f);
 	m_pPlayer->GetChild()->SetMesh(turretMesh);
 	m_pPlayer->GetChild()->SetColor(RGB(0, 150, 50));
-	m_pPlayer->GetChild()->SetPosition(0.0f, 2.5f, -2.0f);
+	m_pPlayer->GetChild()->SetPosition(0.0f, 3.0f, -1.0f);
+
+	std::shared_ptr<CMesh> gunMesh = std::make_shared<CCube>(1.0f, 1.0f, 7.0f);
+	m_pPlayer->GetChild()->GetChild()->SetMesh(gunMesh);
+	m_pPlayer->GetChild()->GetChild()->SetColor(RGB(100, 150, 50));
+	m_pPlayer->GetChild()->GetChild()->SetPosition(0.0f, 1.0f, 6.0f);
 }
 
 void CScene::DestroyScene()
@@ -72,14 +77,6 @@ CGameObject* CScene::GetPickedObject(const int mx, const int my)
 	pickPosition.x = ((2.0f * mx) /  (float)FRAMEBUFFER_WIDTH - 1) / m_pPlayer->GetCamera().GetPerspectiveProjectMatrix()._11;
 	pickPosition.y = -(((2.0f * my) / (float)FRAMEBUFFER_HEIGHT - 1) / m_pPlayer->GetCamera().GetPerspectiveProjectMatrix()._22);
 	pickPosition.z = 1.0f;
-
-	//XMFLOAT3A c = { 0.0f, 0.0f, 0.0f };
-	//XMFLOAT4X4A b = m_pPlayer->GetCamera().GetCameraMatrix();
-	//XMMATRIX a = XMLoadFloat4x4A(&b);
-	//XMFLOAT3A pick;
-	//XMFLOAT3A ca;
-	//XMStoreFloat3A(&pick, XMVector3TransformCoord(XMLoadFloat3A(&pickPosition), XMMatrixInverse(nullptr, a)));
-	//XMStoreFloat3A(&ca, XMVector3TransformCoord(XMLoadFloat3A(&c), XMMatrixInverse(nullptr, a)));
 
 	int pickObjectIndex = -1;
 	int objectIndex = 0;
@@ -116,7 +113,7 @@ CGameObject* CScene::GetPickedObject(const int mx, const int my)
 
 void CScene::HandleInput(DWORD downKey)
 {
-	m_pPlayer->SetInctiveMoveForce();
+	m_pPlayer->SetInactiveMoveForce();
 	if (downKey)
 	{
 		//m_pPlayer->SetDirection();

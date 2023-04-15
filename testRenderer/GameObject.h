@@ -36,8 +36,8 @@ public:
 	void SetPickingDetection(const bool detection);
 	void SetOOBB();
 
-	void AddRotationAngle(const float pitch, const float yaw, const float roll);
-	void AddRotationAngle(const XMFLOAT3A& rotate);
+	virtual void AddRotationAngle(const float pitch, const float yaw, const float roll);
+	virtual void AddRotationAngle(const XMFLOAT3A& rotate);
 	
 	bool CheckPicking(const XMFLOAT3A& ray, const XMFLOAT4X4A& cameraMatrix, float& distance);
 

@@ -318,6 +318,9 @@ void CTankPlayer::Update(const float deltaTime)
 			p1 = XMLoadFloat3A(&cameraPosition) - XMLoadFloat3A(&m_position);
 			axis = XMVector3Normalize(XMVector3Cross(p0, p1));
 			
+			XMFLOAT3A q;
+			XMStoreFloat3A(&q, axis);
+
 			XMVECTOR angle;
 			angle = XMVector3AngleBetweenVectors(p0, p1);
 			float x = XMConvertToDegrees(XMVectorGetX(angle));
@@ -348,7 +351,8 @@ void CTankPlayer::Update(const float deltaTime)
 			}
 			else
 			{
-				XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_cameraRotation) * XMConvertToRadians(m_rotationSpeed * deltaTime))));
+				XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(m_rotationSpeed * deltaTime))));
+				XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&eye), XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_cameraRotation) * XMConvertToRadians(m_rotationSpeed * deltaTime))));
 				XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&eye), rotate));
 				XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&eye), XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position))));
 

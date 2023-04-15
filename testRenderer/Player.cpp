@@ -207,6 +207,7 @@ CTankPlayer::CTankPlayer()
 	, m_gun{ nullptr }
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
+	, m_remainingRotation{ 0.0f }
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_camera.SetPosition(m_cameraOffset);
@@ -231,6 +232,7 @@ CTankPlayer::CTankPlayer(const CCamera& camera)
 	, m_gun{ nullptr }
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
+	, m_remainingRotation{ 0.0f }
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_camera.SetPosition(m_cameraOffset);
@@ -260,6 +262,7 @@ CTankPlayer::~CTankPlayer()
 
 void CTankPlayer::AddRotationAngle(const float pitch, const float yaw, const float roll)
 {
+	m_oldTotalRotation = m_totalRotation;
 	CPlayer::AddRotationAngle(pitch, yaw, roll);
 	m_bMainCamera = true;
 }
@@ -306,17 +309,68 @@ void CTankPlayer::Update(const float deltaTime)
 	XMFLOAT3A eye;
 	if (m_bMainCamera)
 	{
-		XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)));
-		XMFLOAT3A look;
-		XMStoreFloat3(&look, XMVector3Normalize(XMVectorSubtract(XMLoadFloat3A(&m_position), XMLoadFloat3(&eye))));
-		m_camera.SetLookTo(eye, look, m_up);
+		if (m_cameraRotation.x || m_cameraRotation.y || m_cameraRotation.z)
+		{
+			XMVECTOR p0, p1;
+			XMVECTOR axis;
+			XMFLOAT3A cameraPosition = m_camera.GetPosition();
+			p0 = XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)) - XMLoadFloat3A(&m_position);
+			p1 = XMLoadFloat3A(&cameraPosition) - XMLoadFloat3A(&m_position);
+			axis = XMVector3Normalize(XMVector3Cross(p0, p1));
+			
+			XMVECTOR angle;
+			angle = XMVector3AngleBetweenVectors(p0, p1);
+			float x = XMConvertToDegrees(XMVectorGetX(angle));
+			if (!XMVector3Equal(XMLoadFloat3A(&m_oldTotalRotation), XMLoadFloat3A(&m_totalRotation)))
+			{
+				m_remainingRotation = x;
+				m_oldTotalRotation = m_totalRotation;
+				m_rotationNum = 0;
+			}
+			else
+			{
+				m_remainingRotation += -2.0f;
+			}
+
+			m_rotationNum += deltaTime;
+			XMMATRIX rotate;
+			rotate = XMMatrixRotationAxis(axis, -2.0f * m_rotationNum);
+
+			if (x <= 5.0f || m_remainingRotation <= 0.0f)
+			{
+				XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)));
+				XMFLOAT3A look;
+				XMStoreFloat3(&look, XMVector3Normalize(XMVectorSubtract(XMLoadFloat3A(&m_position), XMLoadFloat3(&eye))));
+				m_camera.SetLookTo(eye, look, m_up);
+
+				XMStoreFloat3A(&m_cameraRotation, XMVectorZero());
+				m_rotationNum = 0;
+			}
+			else
+			{
+				XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_cameraRotation) * XMConvertToRadians(m_rotationSpeed * deltaTime))));
+				XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&eye), rotate));
+				XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&eye), XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position))));
+
+				m_camera.SetLookAt(eye, m_position, m_up);
+			}
+		}
+		else
+		{
+			XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)));
+			XMFLOAT3A look;
+			XMStoreFloat3(&look, XMVector3Normalize(XMVectorSubtract(XMLoadFloat3A(&m_position), XMLoadFloat3(&eye))));
+			m_camera.SetLookTo(eye, look, m_up);
+		}
 	}
 	else
 	{
-		XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_cameraRotation) * XMConvertToRadians(m_rotationSpeed * deltaTime))));
+		XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(m_rotationSpeed * deltaTime))));
+		XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&eye), XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_cameraRotation) * XMConvertToRadians(m_rotationSpeed * deltaTime))));
 		XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&eye), XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position))));
 		m_camera.SetLookAt(eye, m_position, m_up);
 	}
+		
 	m_camera.Update(deltaTime);
 
 	if (m_sibling)

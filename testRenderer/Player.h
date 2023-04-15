@@ -63,6 +63,10 @@ private:
 	XMFLOAT3A m_cameraOffset;
 	CCamera m_subCamera;
 	bool m_bMainCamera;
+	float m_remainingRotation;
+	
+	XMFLOAT3A m_oldTotalRotation{ 0.0f, 0.0f,0.0f };
+	float m_rotationNum = 0;
 
 	CGameObject* m_turret;
 	CGameObject* m_gun;

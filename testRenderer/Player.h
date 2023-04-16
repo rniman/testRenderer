@@ -21,7 +21,7 @@ public:
 	void Rotate(const float deltaTime) override;
 	void Move(const float deltaTime) override;
 
-	void HandleInput(DWORD direction);
+	virtual void HandleInput(DWORD direction);
 	virtual void Update(const float deltaTime) override;
 	virtual void Render(HDC hDCFrameBuffer) override;
 
@@ -57,6 +57,7 @@ public:
 	virtual void AddCameraRotation(const float pitch, const float yaw, const float roll) override;
 	void FireBullet();
 
+	void HandleInput(DWORD direction) override;
 	void Update(const float deltaTime) override;
 	void Render(HDC hDCFrameBuffer) override;
 private:
@@ -73,5 +74,4 @@ private:
 
 	std::vector<CBulletObject> m_bullet;
 	float m_coolTime;
-
 };

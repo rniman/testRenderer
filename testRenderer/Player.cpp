@@ -300,7 +300,25 @@ void CTankPlayer::FireBullet()
 	}
 }
 
-void CTankPlayer::Update(const float deltaTime) 
+void CTankPlayer::HandleInput(DWORD direction)
+{
+	if (direction)
+	{
+		m_bMainCamera = true;
+
+		SetDirection();
+		m_bMoveForce = true;
+		if (direction & DIR_FORWARD) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_look));
+		if (direction & DIR_BACKWARD) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_look));
+		if (direction & DIR_RIGHT) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_right));
+		if (direction & DIR_LEFT) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_right));
+		if (direction & DIR_UP) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_up));
+		if (direction & DIR_DOWN) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_up));
+		XMStoreFloat3A(&m_moveDirection, XMVector3Normalize(XMLoadFloat3A(&m_moveDirection)));
+	}
+}
+
+void CTankPlayer::Update(const float deltaTime)
 {
 	Rotate(deltaTime);
 	Move(deltaTime);
@@ -328,7 +346,16 @@ void CTankPlayer::Update(const float deltaTime)
 			{
 				m_remainingRotation = x;
 				m_oldTotalRotation = m_totalRotation;
-				m_rotationNum = 0;
+				//m_rotationNum = 0;
+			}
+			else if (!XMVector3IsNaN(XMLoadFloat3A(&m_moveDirection)))
+			{
+				if (m_remainingRotation <= 0.0f)
+				{
+					m_remainingRotation = x;
+					m_oldTotalRotation = m_totalRotation;
+					m_rotationNum = 0;
+				}
 			}
 			else
 			{
@@ -339,7 +366,7 @@ void CTankPlayer::Update(const float deltaTime)
 			XMMATRIX rotate;
 			rotate = XMMatrixRotationAxis(axis, -2.0f * m_rotationNum);
 
-			if (x <= 5.0f || m_remainingRotation <= 0.0f)
+			if (x <= 7.0f || m_remainingRotation <= 0.0f)
 			{
 				XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)));
 				XMFLOAT3A look;
@@ -362,9 +389,10 @@ void CTankPlayer::Update(const float deltaTime)
 		else
 		{
 			XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)));
-			XMFLOAT3A look;
-			XMStoreFloat3(&look, XMVector3Normalize(XMVectorSubtract(XMLoadFloat3A(&m_position), XMLoadFloat3(&eye))));
-			m_camera.SetLookTo(eye, look, m_up);
+			//XMFLOAT3A look;
+			//XMStoreFloat3(&look, XMVector3Normalize(XMVectorSubtract(XMLoadFloat3A(&m_position), XMLoadFloat3(&eye))));
+			//m_camera.SetLookTo(eye, look, m_up);
+			m_camera.SetLookAt(eye, m_position, m_up);
 		}
 	}
 	else

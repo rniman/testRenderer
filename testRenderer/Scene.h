@@ -20,7 +20,8 @@ public:
 	void Render(HDC hDCFrameBuffer);
 
 private:
-	std::vector<CGameObject> m_gameObjects;
+	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;
+	//std::vector<CGameObject> m_gameObjects;
 	CPlayer* m_pPlayer{ nullptr };
 };
 

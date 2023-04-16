@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClInclude Include="BulletObject.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="EenemyObject.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GraphicsPipeline.h" />
@@ -144,6 +145,7 @@
   <ItemGroup>
     <ClCompile Include="BulletObject.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="EenemyObject.cpp" />
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />

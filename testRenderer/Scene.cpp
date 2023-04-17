@@ -45,31 +45,45 @@ void CScene::CreateScene()
 	m_gameObjects[2]->SetColor(RGB(0, 255, 255));
 	m_gameObjects[2]->SetPosition(0.0f, -2.0f, 20.0f);
 
+	//카메라
 	CCamera newCamera;
 	newCamera.SetPosition(XMFLOAT3A(0.0f, 0.0f, 0.0f));
 	newCamera.SetCameraMatrix();
 	newCamera.SetProjectMatrix(1.0f, 100.0f);
 	newCamera.SetCameraProjectMatrix();
 
+	//플레이어
 	m_pPlayer = new CTankPlayer(newCamera);
 	std::shared_ptr<CMesh> tankMesh = std::make_shared<CTankMesh>();
 	m_pPlayer->SetMesh(tankMesh);
 	m_pPlayer->SetColor(RGB(0, 120, 0));
 
-	m_gameObjects.emplace_back(std::make_unique<CEenemyObject>());
+	//적 탱크 
+	m_gameObjects.emplace_back(std::make_unique<CEnemyTank>());
 	m_gameObjects[3]->SetMesh(tankMesh);
-	m_gameObjects[3]->SetColor(RGB(255, 0, 0));
-	m_gameObjects[3]->SetPosition(0.0f, 10.0f, 20.0f);
+	m_gameObjects[3]->SetColor(RGB(255, 0, 255));
+	m_gameObjects[3]->SetPosition(0.0f, 0.0f, 20.0f);
+	m_gameObjects[3]->AddRotationAngle(0.0f, 180.0f, 0.0f);
 
+	//터렛
 	std::shared_ptr<CMesh> turretMesh = std::make_shared<CCube>(3.0f, 4.0f, 5.0f);
+	m_gameObjects[3]->GetChild()->SetMesh(turretMesh);
+	m_gameObjects[3]->GetChild()->SetColor(RGB(255, 0, 255));
+	m_gameObjects[3]->GetChild()->SetPosition(0.0f, 3.0f, -1.0f);
+
 	m_pPlayer->GetChild()->SetMesh(turretMesh);
 	m_pPlayer->GetChild()->SetColor(RGB(0, 150, 50));
 	m_pPlayer->GetChild()->SetPosition(0.0f, 3.0f, -1.0f);
 
-	std::shared_ptr<CMesh> gunMesh = std::make_shared<CCube>(1.0f, 1.0f, 7.0f);
+	//대포
+	std::shared_ptr<CMesh> gunMesh = std::make_shared<CStick>(1.0f, 1.0f, 7.0f);
+	m_gameObjects[3]->GetChild()->GetChild()->SetMesh(gunMesh);
+	m_gameObjects[3]->GetChild()->GetChild()->SetColor(RGB(255, 0, 255));
+	m_gameObjects[3]->GetChild()->GetChild()->SetPosition(0.0f, 1.0f, 2.5f);
+
 	m_pPlayer->GetChild()->GetChild()->SetMesh(gunMesh);
 	m_pPlayer->GetChild()->GetChild()->SetColor(RGB(100, 150, 50));
-	m_pPlayer->GetChild()->GetChild()->SetPosition(0.0f, 1.0f, 6.0f);
+	m_pPlayer->GetChild()->GetChild()->SetPosition(0.0f, 1.0f, 2.5f);
 }
 
 void CScene::DestroyScene()

@@ -38,6 +38,8 @@ constexpr UCHAR VK_D{ 0x44 };
 constexpr UCHAR VK_A{ 0x41 };
 constexpr UCHAR VK_Q{ 0x51 };
 constexpr UCHAR VK_E{ 0x45 };
+constexpr UCHAR VK_C{ 0x43 };
+constexpr UCHAR VK_Z{ 0x5A };
 
 constexpr DWORD DIR_FORWARD{ 0x01 };
 constexpr DWORD DIR_BACKWARD{ 0x02 };
@@ -45,3 +47,5 @@ constexpr DWORD DIR_RIGHT{ 0x04 };
 constexpr DWORD DIR_LEFT{ 0x08 };
 constexpr DWORD DIR_UP{ 0x10 };
 constexpr DWORD DIR_DOWN{ 0x20 };
+
+constexpr UCHAR MAX_BULLET{ 50 };

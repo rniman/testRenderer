@@ -90,6 +90,19 @@ public:
 
 /// <CCube>
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+/// <CStick>
+
+class CStick : public CMesh
+{
+public:
+	CStick(const float width = 4.0f, const float height = 4.0f, const float depth = 4.0f);
+	virtual ~CStick() override;
+
+	virtual void Render(HDC hDCFrameBuffer) override;
+};
+
+/// <CStick>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 /// <CTankMesh>
 
 class CTankMesh : public CMesh

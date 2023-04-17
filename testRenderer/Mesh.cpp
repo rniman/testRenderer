@@ -307,6 +307,70 @@ void CCube::Render(HDC hDCFrameBuffer)
 
 /// <CCube>
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+/// <CStick>
+
+CStick::CStick(const float width, const float height, const float depth)
+	:CMesh(6)
+{
+	float halfWidth = width / 2.0f;
+	float halfHeight = height / 2.0f;
+
+	std::unique_ptr<CPolygon> frontPlane = std::make_unique<CPolygon>(4);
+	frontPlane->SetVertex(0, CVertex(halfWidth, halfHeight, depth));
+	frontPlane->SetVertex(1, CVertex(halfWidth, -halfHeight, depth));
+	frontPlane->SetVertex(2, CVertex(-halfWidth, -halfHeight, depth));
+	frontPlane->SetVertex(3, CVertex(-halfWidth, halfHeight, depth));
+	SetPolygon(0, *frontPlane.release());
+
+	std::unique_ptr<CPolygon> leftPlane = std::make_unique<CPolygon>(4);
+	leftPlane->SetVertex(0, CVertex(-halfWidth, halfHeight, 0.0f));
+	leftPlane->SetVertex(1, CVertex(-halfWidth, -halfHeight, 0.0f));
+	leftPlane->SetVertex(2, CVertex(-halfWidth, -halfHeight, depth));
+	leftPlane->SetVertex(3, CVertex(-halfWidth, halfHeight, depth));
+	SetPolygon(1, *leftPlane.release());
+
+	std::unique_ptr<CPolygon> backPlane = std::make_unique<CPolygon>(4);
+	backPlane->SetVertex(0, CVertex(halfWidth, halfHeight, 0.0f));
+	backPlane->SetVertex(1, CVertex(halfWidth, -halfHeight, 0.0f));
+	backPlane->SetVertex(2, CVertex(-halfWidth, -halfHeight, 0.0f));
+	backPlane->SetVertex(3, CVertex(-halfWidth, halfHeight, 0.0f));
+	SetPolygon(2, *backPlane.release());
+
+	std::unique_ptr<CPolygon> rightPlane = std::make_unique<CPolygon>(4);
+	rightPlane->SetVertex(0, CVertex(halfWidth, halfHeight, depth));
+	rightPlane->SetVertex(1, CVertex(halfWidth, -halfHeight, depth));
+	rightPlane->SetVertex(2, CVertex(halfWidth, -halfHeight, 0.0f));
+	rightPlane->SetVertex(3, CVertex(halfWidth, halfHeight, 0.0f));
+	SetPolygon(3, *rightPlane.release());
+
+	std::unique_ptr<CPolygon> topPlane = std::make_unique<CPolygon>(4);
+	topPlane->SetVertex(0, CVertex(halfWidth, halfHeight, depth));
+	topPlane->SetVertex(1, CVertex(halfWidth, halfHeight, 0.0f));
+	topPlane->SetVertex(2, CVertex(-halfWidth, halfHeight, 0.0f));
+	topPlane->SetVertex(3, CVertex(-halfWidth, halfHeight, depth));
+	SetPolygon(4, *topPlane.release());
+
+	std::unique_ptr<CPolygon> bottomPlane = std::make_unique<CPolygon>(4);
+	bottomPlane->SetVertex(0, CVertex(halfWidth, -halfHeight, 0.0f));
+	bottomPlane->SetVertex(1, CVertex(halfWidth, -halfHeight, depth));
+	bottomPlane->SetVertex(2, CVertex(-halfWidth, -halfHeight, depth));
+	bottomPlane->SetVertex(3, CVertex(-halfWidth, -halfHeight, 0.0f));
+	SetPolygon(5, *bottomPlane.release());
+
+	m_OOBB = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, depth / 2.0f), XMFLOAT3(halfWidth, halfHeight, depth), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+}
+
+CStick::~CStick()
+{
+}
+
+void CStick::Render(HDC hDCFrameBuffer)
+{
+	CMesh::Render(hDCFrameBuffer);
+}
+
+/// <CStick>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 /// <CTankMesh>
 
 CTankMesh::CTankMesh()
@@ -369,3 +433,4 @@ void CTankMesh::Render(HDC hDCFrameBuffer)
 {
 	CMesh::Render(hDCFrameBuffer);
 }
+

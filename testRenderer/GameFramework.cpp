@@ -118,8 +118,12 @@ void CGameFramework::HandleInput()
 	if (GetAsyncKeyState(VK_S) & 0x8000) m_keyDown |= DIR_BACKWARD;
 	if (GetAsyncKeyState(VK_D) & 0x8000) m_keyDown |= DIR_RIGHT;
 	if (GetAsyncKeyState(VK_A) & 0x8000) m_keyDown |= DIR_LEFT;
-	if (GetAsyncKeyState(VK_Q) & 0x8000) m_keyDown |= DIR_UP;
-	if (GetAsyncKeyState(VK_E) & 0x8000) m_keyDown |= DIR_DOWN;
+	//if (GetAsyncKeyState(VK_Q) & 0x8000) m_keyDown |= DIR_UP;
+	//if (GetAsyncKeyState(VK_E) & 0x8000) m_keyDown |= DIR_DOWN;
+	if (GetAsyncKeyState(VK_Q) & 0x8000) m_pScene->GetPlayer()->GetChild()->AddRotationAngle(0.0f, -1.0f, 0.0f);
+	if (GetAsyncKeyState(VK_E) & 0x8000) m_pScene->GetPlayer()->GetChild()->AddRotationAngle(0.0f, 1.0f, 0.0f);
+	if (GetAsyncKeyState(VK_C) & 0x8000) m_pScene->GetPlayer()->GetChild()->GetChild()->AddRotationAngle(1.0f, 0.0f, 0.0f);
+	if (GetAsyncKeyState(VK_Z) & 0x8000) m_pScene->GetPlayer()->GetChild()->GetChild()->AddRotationAngle(-1.0f, 0.0f, 0.0f);
 
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000) (static_cast<CTankPlayer*>((m_pScene->GetPlayer())))->FireBullet();
 

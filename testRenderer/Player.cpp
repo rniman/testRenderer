@@ -164,8 +164,8 @@ void CPlayer::HandleInput(DWORD direction)
 		if (direction & DIR_BACKWARD) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_look));
 		if (direction & DIR_RIGHT) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_right));
 		if (direction & DIR_LEFT) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_right));
-		if (direction & DIR_UP) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_up));
-		if (direction & DIR_DOWN) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_up));
+		//if (direction & DIR_UP) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_up));
+		//if (direction & DIR_DOWN) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_up));
 		XMStoreFloat3A(&m_moveDirection, XMVector3Normalize(XMLoadFloat3A(&m_moveDirection)));
 	}
 }
@@ -212,10 +212,15 @@ CTankPlayer::CTankPlayer()
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_camera.SetPosition(m_cameraOffset);
 
-	m_child = new CGameObject();
-	m_turret = m_child;
+	m_turret = new CGameObject();
+	m_child = m_turret;
 	m_turret->SetParent(*this);
-	m_turret->SetRotationSpeed(m_rotationSpeed);
+	m_turret->SetRotationSpeed(30.0f);
+
+	m_gun = new CGameObject();
+	m_child->SetChild(*m_gun);
+	m_gun->SetParent(*m_child);
+	m_gun->SetRotationSpeed(30.0f);
 
 	std::shared_ptr<CMesh> bulletMesh = std::make_shared<CCube>(2.0f, 2.0f, 2.0f);
 	for (CBulletObject& bullet : m_bullet)
@@ -240,12 +245,12 @@ CTankPlayer::CTankPlayer(const CCamera& camera)
 	m_turret = new CGameObject();
 	m_child = m_turret;
 	m_turret->SetParent(*this);
-	m_turret->SetRotationSpeed(m_rotationSpeed);
+	m_turret->SetRotationSpeed(30.0f);
 
 	m_gun = new CGameObject();
 	m_child->SetChild(*m_gun);
 	m_gun->SetParent(*m_child);
-	m_gun->SetRotationSpeed(m_rotationSpeed);
+	m_gun->SetRotationSpeed(30.0f);
 
 	std::shared_ptr<CMesh> bulletMesh = std::make_shared<CCube>(1.0f, 1.0f, 1.0f);
 	for (CBulletObject& bullet : m_bullet)
@@ -312,8 +317,8 @@ void CTankPlayer::HandleInput(DWORD direction)
 		if (direction & DIR_BACKWARD) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_look));
 		if (direction & DIR_RIGHT) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_right));
 		if (direction & DIR_LEFT) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_right));
-		if (direction & DIR_UP) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_up));
-		if (direction & DIR_DOWN) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_up));
+		//if (direction & DIR_UP) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_up));
+		//if (direction & DIR_DOWN) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_up));
 		XMStoreFloat3A(&m_moveDirection, XMVector3Normalize(XMLoadFloat3A(&m_moveDirection)));
 	}
 }

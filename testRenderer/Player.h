@@ -44,8 +44,6 @@ protected:
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 /// <CTankPlayer>
 
-constexpr UCHAR MAX_BULLET{ 50 };
-
 class CTankPlayer : public CPlayer
 {
 public:
@@ -62,7 +60,6 @@ public:
 	void Render(HDC hDCFrameBuffer) override;
 private:
 	XMFLOAT3A m_cameraOffset;
-	CCamera m_subCamera;
 	bool m_bMainCamera;
 	float m_remainingRotation;
 	

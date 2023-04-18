@@ -110,7 +110,7 @@ CGameObject* CScene::GetPickedObject(const int mx, const int my)
 		}
 
 		float hitDistance = FLT_MAX;
-		if (gameObject->CheckPicking(pickPosition, m_pPlayer->GetCamera().GetCameraMatrix(), hitDistance))
+		if (CGameObject::CheckPicking(gameObject.get(), pickPosition, m_pPlayer->GetCamera().GetCameraMatrix(), hitDistance))
 		{
 			if (hitDistance < nearestHitDistance)
 			{

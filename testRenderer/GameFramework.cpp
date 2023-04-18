@@ -120,12 +120,13 @@ void CGameFramework::HandleInput()
 	if (GetAsyncKeyState(VK_A) & 0x8000) m_keyDown |= DIR_LEFT;
 	//if (GetAsyncKeyState(VK_Q) & 0x8000) m_keyDown |= DIR_UP;
 	//if (GetAsyncKeyState(VK_E) & 0x8000) m_keyDown |= DIR_DOWN;
-	if (GetAsyncKeyState(VK_Q) & 0x8000) m_pScene->GetPlayer()->GetChild()->AddRotationAngle(0.0f, -1.0f, 0.0f);
-	if (GetAsyncKeyState(VK_E) & 0x8000) m_pScene->GetPlayer()->GetChild()->AddRotationAngle(0.0f, 1.0f, 0.0f);
-	if (GetAsyncKeyState(VK_C) & 0x8000) m_pScene->GetPlayer()->GetChild()->GetChild()->AddRotationAngle(1.0f, 0.0f, 0.0f);
-	if (GetAsyncKeyState(VK_Z) & 0x8000) m_pScene->GetPlayer()->GetChild()->GetChild()->AddRotationAngle(-1.0f, 0.0f, 0.0f);
+	if (GetAsyncKeyState(VK_Q) & 0x8000) static_cast<CTankPlayer*>(m_pScene->GetPlayer())->GetTurret()->AddRotationAngle(0.0f, -1.0f, 0.0f);
+	if (GetAsyncKeyState(VK_E) & 0x8000) static_cast<CTankPlayer*>(m_pScene->GetPlayer())->GetTurret()->AddRotationAngle(0.0f, 1.0f, 0.0f);
+	
+	if (GetAsyncKeyState(VK_C) & 0x8000 && static_cast<CTankPlayer*>(m_pScene->GetPlayer())->GetGun()->GetTotalRotation().x < 60.0f) static_cast<CTankPlayer*>(m_pScene->GetPlayer())->GetGun()->AddRotationAngle(1.0f, 0.0f, 0.0f);
+	if (GetAsyncKeyState(VK_Z) & 0x8000 && static_cast<CTankPlayer*>(m_pScene->GetPlayer())->GetGun()->GetTotalRotation().x > -45.0f) static_cast<CTankPlayer*>(m_pScene->GetPlayer())->GetGun()->AddRotationAngle(-1.0f, 0.0f, 0.0f);
 
-	if (GetAsyncKeyState(VK_SPACE) & 0x8000) (static_cast<CTankPlayer*>((m_pScene->GetPlayer())))->FireBullet();
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000) static_cast<CTankPlayer*>((m_pScene->GetPlayer()))->FireBullet();
 
 	m_pScene->HandleInput(m_keyDown);
 }
@@ -223,12 +224,14 @@ void CGameFramework::OnMouseMessage(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			if (m_lockOnObejct)
 			{
 				m_lockOnObejct->SetColor(m_lockOnObjectOriginColor);
+				CGameObject::SetAllColor(m_lockOnObejct, m_lockOnObjectOriginColor);
 				m_lockOnObejct = nullptr;
 			}
 			m_lockOnObejct = m_pScene->GetPickedObject(LOWORD(lParam), HIWORD(lParam));
 			if (m_lockOnObejct)
 			{
 				m_lockOnObjectOriginColor = m_lockOnObejct->SetColor(RGB(255, 0, 0));
+				CGameObject::SetAllColor(m_lockOnObejct, RGB(255, 0, 0));
 			}
 		}
 		break;

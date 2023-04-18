@@ -265,6 +265,16 @@ CTankPlayer::~CTankPlayer()
 	m_gun = nullptr;
 }
 
+CGameObject* CTankPlayer::GetTurret() const
+{
+	return m_turret;
+}
+
+CGameObject* CTankPlayer::GetGun() const
+{
+	return m_gun;
+}
+
 void CTankPlayer::AddRotationAngle(const float pitch, const float yaw, const float roll)
 {
 	m_oldTotalRotation = m_totalRotation;
@@ -298,6 +308,9 @@ void CTankPlayer::FireBullet()
 		XMFLOAT4X4A gunParentWorld = m_gun->GetParent()->GetWorldMatrix();
 		XMStoreFloat3A(&firePosition, XMVector3TransformCoord(XMLoadFloat3(&firePosition), XMLoadFloat4x4A(&gunParentWorld)));
 		bullet.SetPosition(firePosition);
+
+		XMFLOAT3A fireDirection = m_look;
+		//XMStoreFloat3A(&fireDirection, )
 
 		bullet.SetForward(m_look);
 		m_coolTime = 2.0f;

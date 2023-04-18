@@ -51,6 +51,9 @@ public:
 	CTankPlayer(const CCamera& camera);
 	~CTankPlayer() override;
 
+	CGameObject* GetTurret() const;
+	CGameObject* GetGun() const;
+
 	virtual void AddRotationAngle(const float pitch, const float yaw, const float roll) override;
 	virtual void AddCameraRotation(const float pitch, const float yaw, const float roll) override;
 	void FireBullet();

@@ -35,9 +35,9 @@ public:
 	//XMFLOAT3A GetUp() const;
 	//XMFLOAT3A GetLook() const;
 
-	const XMFLOAT3A& GetRight() const;
-	const XMFLOAT3A& GetUp() const;
-	const XMFLOAT3A& GetLook() const;
+	//const XMFLOAT3A& GetRight() const;
+	//const XMFLOAT3A& GetUp() const;
+	//const XMFLOAT3A& GetLook() const;
 
 	XMFLOAT4X4A GetCameraMatrix() const;
 	XMFLOAT4X4A GetCameraProjectMatrix() const;

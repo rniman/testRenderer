@@ -14,13 +14,14 @@ public:
 	CGameObject& operator=(const CGameObject& other) = delete;
 
 	bool GetActive() const;
-	bool GetPickingDetection() const;
+	CMesh* GetMesh() const;
 	CGameObject* GetParent() const;
 	CGameObject* GetChild() const;
 	CGameObject* GetSibling() const;
 	XMFLOAT4X4A GetWorldMatrix()const;
 	XMFLOAT3A GetPosition() const;
 	XMFLOAT3A GetTotalRotation() const;
+	bool GetPickingDetection() const;
 	BoundingOrientedBox GetOOBB() const;
 
 	void SetMesh(const std::shared_ptr<CMesh>& mesh);
@@ -39,7 +40,7 @@ public:
 	virtual void AddRotationAngle(const float pitch, const float yaw, const float roll);
 	virtual void AddRotationAngle(const XMFLOAT3A& rotate);
 	
-	bool CheckPicking(const XMFLOAT3A& ray, const XMFLOAT4X4A& cameraMatrix, float& distance);
+	static bool CheckPicking(const CGameObject* gameObject, const XMFLOAT3A& ray, const XMFLOAT4X4A& cameraMatrix, float& distance);
 
 	virtual void Rotate(const float deltaTime);
 	virtual void Move(const float deltaTime);
@@ -48,6 +49,8 @@ public:
 	virtual void Render(HDC hDCFrameBuffer);
 
 	void reset();
+
+	static void SetAllColor(CGameObject* gameObject, DWORD color);
 
 protected:
 	bool m_active;

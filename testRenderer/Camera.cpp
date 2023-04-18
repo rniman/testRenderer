@@ -62,20 +62,20 @@ XMFLOAT3A CCamera::GetPosition() const
 	return m_position;
 }
 
-const XMFLOAT3A& CCamera::GetRight() const
-{
-	return m_right;
-}
-
-const XMFLOAT3A& CCamera::GetUp() const
-{
-	return m_up;
-}
-
-const XMFLOAT3A& CCamera::GetLook() const
-{
-	return m_look;
-}
+//const XMFLOAT3A& CCamera::GetRight() const
+//{
+//	return m_right;
+//}
+//
+//const XMFLOAT3A& CCamera::GetUp() const
+//{
+//	return m_up;
+//}
+//
+//const XMFLOAT3A& CCamera::GetLook() const
+//{
+//	return m_look;
+//}
 
 XMFLOAT4X4A CCamera::GetCameraMatrix() const
 {

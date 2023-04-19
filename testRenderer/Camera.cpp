@@ -37,6 +37,7 @@ void CViewport::SetViewport(const unsigned left, const unsigned top, const unsig
 
 CCamera::CCamera()
 	: m_position{0.0f, 0.0f, 0.0f}
+	, m_oldPosition{ 0.0f, 0.0f, 0.0f }
 	, m_right{1.0f, 0.0f, 0.0f}
 	, m_look{0.0f, 0.0f, 1.0f}
 	, m_up{0.0f, 1.0f, 0.0f}
@@ -60,6 +61,11 @@ CViewport CCamera::GetViewport() const
 XMFLOAT3A CCamera::GetPosition() const
 {
 	return m_position;
+}
+
+XMFLOAT3A CCamera::GetOldPosition() const
+{
+	return m_oldPosition;
 }
 
 //const XMFLOAT3A& CCamera::GetRight() const
@@ -100,11 +106,13 @@ BoundingFrustum CCamera::GetWorldFrustum() const
 
 void CCamera::SetPosition(const XMFLOAT3A& position)
 {
+	m_oldPosition = m_position;
 	m_position = position;
 }
 
 void CCamera::SetLookAt(const XMFLOAT3A& eye, const XMFLOAT3A& look, const XMFLOAT3A& up)
 {
+	m_oldPosition = m_position;
 	m_position = eye;
 
 	XMStoreFloat4x4A(&m_cameraMatrix, XMMatrixLookAtLH(XMLoadFloat3A(&eye), XMLoadFloat3A(&look), XMLoadFloat3A(&up)));
@@ -120,6 +128,7 @@ void CCamera::SetLookAt(const XMFLOAT3A& eye, const XMFLOAT3A& look, const XMFLO
 
 void CCamera::SetLookTo(const XMFLOAT3A& eye, const XMFLOAT3A& look, const XMFLOAT3A& up)
 {
+	m_oldPosition = m_position;
 	m_position = eye;
 	
 	XMStoreFloat4x4A(&m_cameraMatrix, XMMatrixLookToLH(XMLoadFloat3A(&eye), XMLoadFloat3A(&look), XMLoadFloat3A(&up)));
@@ -172,8 +181,14 @@ void CCamera::SetFrustumWorld()
 	m_frustumCamera.Transform(m_frustumWorld, XMMatrixInverse(nullptr, XMLoadFloat4x4A(&m_cameraMatrix)));
 }
 
+void CCamera::BackCameraPosition()
+{
+	m_position = m_oldPosition;
+}
+
 void CCamera::Move(const XMFLOAT3A& shift)
 {
+	m_oldPosition = m_position;
 	XMStoreFloat3A(&m_position, XMVectorAdd(XMLoadFloat3A(&m_position), XMLoadFloat3A(&shift)));
 }
 

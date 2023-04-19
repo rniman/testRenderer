@@ -178,21 +178,29 @@ void CScene::Render(HDC hDCFrameBuffer)
 void CScene::CheckPlayerByObjectCollision()
 {
 	BoundingOrientedBox playerOOBB = m_pPlayer->GetOOBB();
+	m_pPlayer->SetCollidedObject(nullptr);
 
 	for (std::unique_ptr<CGameObject>& gameObject : m_gameObjects)
 	{
+		gameObject->SetCollidedObject(nullptr);
+
 		//임시로 설정
 		if (!gameObject->GetPickingDetection())
 		{
 			continue;
 		}
 
-		if (playerOOBB.Contains(gameObject->GetOOBB()))
+		if (playerOOBB.Intersects(gameObject->GetOOBB()))
 		{
 			gameObject->SetCollidedObject(m_pPlayer);
 			m_pPlayer->SetCollidedObject(gameObject.get());
 			break;
 		}
+	}
+
+	if (m_pPlayer->GetCollidedObject())
+	{
+		static_cast<CTankPlayer*>(m_pPlayer)->Collide();
 	}
 }
 

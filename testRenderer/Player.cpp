@@ -147,20 +147,8 @@ void CPlayer::Move(const float deltaTime)
 		}
 	}
 
-	if (m_collidedObject)
-	{
-		BoundingOrientedBox tempOOBB;
-		m_mesh->GetOOBB().Transform(tempOOBB, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_moveDirection) * m_moveSpeed * deltaTime));
-		XMStoreFloat4(&tempOOBB.Orientation, XMQuaternionNormalize(XMLoadFloat4(&tempOOBB.Orientation)));
-		if (tempOOBB.Intersects(m_collidedObject->GetOOBB()))
-		{
-			m_moveSpeed = 0.0f;
-			return;
-		}
-	}
-
 	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_moveDirection) * m_moveSpeed * deltaTime));
-
+	
 	m_position.x = m_worldMatrix._41;
 	m_position.y = m_worldMatrix._42;
 	m_position.z = m_worldMatrix._43;
@@ -203,6 +191,11 @@ void CPlayer::Update(const float deltaTime)
 	}
 }
 
+void CPlayer::Collide()
+{
+	
+}
+
 void CPlayer::Render(HDC hDCFrameBuffer)
 {
 }
@@ -222,6 +215,7 @@ CTankPlayer::CTankPlayer()
 	, m_remainingRotation{ 0.0f }
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
+	m_oldPosition = m_position;
 	m_camera.SetPosition(m_cameraOffset);
 
 	m_turret = new CGameObject();
@@ -252,6 +246,7 @@ CTankPlayer::CTankPlayer(const CCamera& camera)
 	, m_remainingRotation{ 0.0f }
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
+	m_oldPosition = m_position;
 	m_camera.SetPosition(m_cameraOffset);
 	
 	m_turret = new CGameObject();
@@ -352,7 +347,55 @@ void CTankPlayer::HandleInput(DWORD direction)
 	}
 }
 
+void CTankPlayer::Collide()
+{
+	m_moveSpeed = 0.0f;
+	m_position = m_oldPosition;
 
+	m_camera.BackCameraPosition();
+	m_camera.SetLookAt(m_camera.GetPosition(), m_position, m_up);
+	m_camera.SetCameraProjectMatrix();
+	m_camera.SetFrustumWorld();
+}
+
+void CTankPlayer::Rotate(const float deltaTime)
+{
+	CPlayer::Rotate(deltaTime);
+}
+
+void CTankPlayer::Move(const float deltaTime)
+{
+	if (m_bMoveForce)
+	{
+		if (m_moveSpeed < 10.0f)
+		{
+			m_moveSpeed += deltaTime * (m_acceleration - m_friction);
+			if (m_moveSpeed > 10.0f)
+			{
+				m_moveSpeed = 10.0f;
+			}
+		}
+	}
+	else
+	{
+		if (m_moveSpeed > 0.0f)
+		{
+			m_moveSpeed -= deltaTime * m_friction * 2;
+			if (m_moveSpeed < 0.0f)
+			{
+				m_moveSpeed = 0.0f;
+			}
+		}
+	}
+
+	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_moveDirection) * m_moveSpeed * deltaTime));
+
+	m_oldPosition = m_position;
+
+	m_position.x = m_worldMatrix._41;
+	m_position.y = m_worldMatrix._42;
+	m_position.z = m_worldMatrix._43;
+}
 
 void CTankPlayer::Update(const float deltaTime)
 {
@@ -370,8 +413,9 @@ void CTankPlayer::Update(const float deltaTime)
 			XMFLOAT3A cameraPosition = m_camera.GetPosition();
 			p0 = XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)) - XMLoadFloat3A(&m_position);
 			p1 = XMLoadFloat3A(&cameraPosition) - XMLoadFloat3A(&m_position);
+			//axis = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 			axis = XMVector3Normalize(XMVector3Cross(p0, p1));
-			
+
 			XMFLOAT3A q;
 			XMStoreFloat3A(&q, axis);
 

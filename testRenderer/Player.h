@@ -18,11 +18,11 @@ public:
 	virtual void AddRotationAngle(const float pitch, const float yaw, const float roll) override;
 	virtual void AddCameraRotation(const float pitch, const float yaw, const float roll);
 
-	void Rotate(const float deltaTime) override;
-	void Move(const float deltaTime) override;
-
+	virtual void Rotate(const float deltaTime) override;
+	virtual void Move(const float deltaTime) override;
 	virtual void HandleInput(DWORD direction);
 	virtual void Update(const float deltaTime) override;
+	virtual void Collide() override;
 	virtual void Render(HDC hDCFrameBuffer) override;
 
 protected:
@@ -58,14 +58,20 @@ public:
 	virtual void AddCameraRotation(const float pitch, const float yaw, const float roll) override;
 	void FireBullet();
 
+	virtual void Rotate(const float deltaTime) override;
+	virtual void Move(const float deltaTime) override;
+
 	void HandleInput(DWORD direction) override;
 	void Update(const float deltaTime) override;
+	void Collide() override;
 	void Render(HDC hDCFrameBuffer) override;
 private:
 	XMFLOAT3A m_cameraOffset;
 	bool m_bMainCamera;
 	float m_remainingRotation;
 	
+	XMFLOAT3A m_oldPosition;
+
 	XMFLOAT3A m_oldTotalRotation{ 0.0f, 0.0f,0.0f };
 	float m_rotationNum = 0;
 

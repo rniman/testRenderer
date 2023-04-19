@@ -22,6 +22,7 @@ public:
 	XMFLOAT3A GetPosition() const;
 	XMFLOAT3A GetTotalRotation() const;
 	float GetRotateSpeed() const;
+	CGameObject* GetCollidedObject() const;
 	bool GetPickingDetection() const;
 	BoundingOrientedBox GetOOBB() const;
 
@@ -45,8 +46,8 @@ public:
 
 	virtual void Rotate(const float deltaTime);
 	virtual void Move(const float deltaTime);
-
 	virtual void Update(const float deltaTime);
+	virtual void Collide();
 	virtual void Render(HDC hDCFrameBuffer);
 
 	void reset();

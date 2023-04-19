@@ -31,6 +31,7 @@ public:
 
 	CViewport GetViewport() const;
 	XMFLOAT3A GetPosition() const;
+	XMFLOAT3A GetOldPosition() const;
 	//XMFLOAT3A GetRight() const;
 	//XMFLOAT3A GetUp() const;
 	//XMFLOAT3A GetLook() const;
@@ -59,6 +60,8 @@ public:
 
 	void SetFrustumWorld();
 
+	void BackCameraPosition();
+
 	void Move(const XMFLOAT3A& shift);
 	void Rotate(const float pitch, const float yaw, const float roll);
 
@@ -66,6 +69,8 @@ public:
 	//void Rotate(const XMFLOAT3A& axies, const float angle);
 private:
 	XMFLOAT3A m_position;
+	XMFLOAT3A m_oldPosition;
+
 	XMFLOAT3A m_right;
 	XMFLOAT3A m_look;
 	XMFLOAT3A m_up;

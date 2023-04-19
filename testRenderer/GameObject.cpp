@@ -121,6 +121,11 @@ float CGameObject::GetRotateSpeed() const
 	return m_rotationSpeed;
 }
 
+CGameObject* CGameObject::GetCollidedObject() const
+{
+	return m_collidedObject;
+}
+
 BoundingOrientedBox CGameObject::GetOOBB() const
 {
 	return m_OOBB;
@@ -275,6 +280,10 @@ void CGameObject::Update(const float deltaTime)
 	}
 
 	//충돌 처리
+}
+
+void CGameObject::Collide()
+{
 }
 
 void CGameObject::Render(HDC hDCFrameBuffer) 

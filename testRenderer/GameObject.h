@@ -34,7 +34,7 @@ public:
 	void SetPosition(const XMFLOAT3A& position);
 	void SetRotationSpeed(const float rotationSpeed);
 	void SetMoveSpeed(const float moveSpeed);
-
+	void SetCollidedObject(CGameObject* gameObject);
 	void SetPickingDetection(const bool detection);
 	void SetOOBB();
 
@@ -70,6 +70,7 @@ protected:
 	float m_rotationSpeed;
 	float m_moveSpeed;
 
+	CGameObject* m_collidedObject;
 	bool m_pickingDetection;
 	BoundingOrientedBox m_OOBB;
 };

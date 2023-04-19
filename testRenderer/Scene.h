@@ -14,10 +14,14 @@ public:
 	
 	CGameObject* GetPickedObject(const int mx, const int my);
 
+
 	void HandleInput(DWORD);
 	void Update(const float deltaTime = 0.01667f);
 	void Collide();
 	void Render(HDC hDCFrameBuffer);
+
+	void CheckPlayerByObjectCollision();
+	void CheckObjectByObjectCollision();
 
 private:
 	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;

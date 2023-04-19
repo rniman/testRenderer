@@ -147,6 +147,18 @@ void CPlayer::Move(const float deltaTime)
 		}
 	}
 
+	if (m_collidedObject)
+	{
+		BoundingOrientedBox tempOOBB;
+		m_mesh->GetOOBB().Transform(tempOOBB, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_moveDirection) * m_moveSpeed * deltaTime));
+		XMStoreFloat4(&tempOOBB.Orientation, XMQuaternionNormalize(XMLoadFloat4(&tempOOBB.Orientation)));
+		if (tempOOBB.Intersects(m_collidedObject->GetOOBB()))
+		{
+			m_moveSpeed = 0.0f;
+			return;
+		}
+	}
+
 	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_moveDirection) * m_moveSpeed * deltaTime));
 
 	m_position.x = m_worldMatrix._41;
@@ -277,6 +289,9 @@ CGameObject* CTankPlayer::GetGun() const
 
 void CTankPlayer::AddRotationAngle(const float pitch, const float yaw, const float roll)
 {
+	if (m_collidedObject)
+		return;
+
 	m_oldTotalRotation = m_totalRotation;
 	CPlayer::AddRotationAngle(pitch, yaw, roll);
 	m_bMainCamera = true;
@@ -309,14 +324,9 @@ void CTankPlayer::FireBullet()
 		XMStoreFloat3A(&firePosition, XMVector3TransformCoord(XMLoadFloat3(&firePosition), XMLoadFloat4x4A(&gunParentWorld)));
 		bullet.SetPosition(firePosition);
 
-		XMFLOAT3A fireDirection = m_look;
-		XMFLOAT3A turretRotationAngle = m_turret->GetTotalRotation();
-		XMFLOAT3A gunRotationAngle = m_gun->GetTotalRotation();
-
-		XMFLOAT4X4A turretMatrix = m_turret->GetWorldMatrix();
+		XMFLOAT3A fireDirection = { 0.0f, 0.0f, 1.0f };
 		XMFLOAT4X4A gunMatrix = m_gun->GetWorldMatrix();
 
-		//XMStoreFloat3A(&fireDirection, XMVector3TransformNormal(XMLoadFloat3A(&fireDirection), XMLoadFloat4x4A(&turretMatrix)));
 		XMStoreFloat3A(&fireDirection, XMVector3TransformNormal(XMLoadFloat3A(&fireDirection), XMLoadFloat4x4A(&gunMatrix)));
 
 		bullet.SetForward(fireDirection);
@@ -330,7 +340,6 @@ void CTankPlayer::HandleInput(DWORD direction)
 	if (direction)
 	{
 		m_bMainCamera = true;
-
 		SetDirection();
 		m_bMoveForce = true;
 		if (direction & DIR_FORWARD) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_look));
@@ -342,6 +351,8 @@ void CTankPlayer::HandleInput(DWORD direction)
 		XMStoreFloat3A(&m_moveDirection, XMVector3Normalize(XMLoadFloat3A(&m_moveDirection)));
 	}
 }
+
+
 
 void CTankPlayer::Update(const float deltaTime)
 {
@@ -414,9 +425,6 @@ void CTankPlayer::Update(const float deltaTime)
 		else
 		{
 			XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)));
-			//XMFLOAT3A look;
-			//XMStoreFloat3(&look, XMVector3Normalize(XMVectorSubtract(XMLoadFloat3A(&m_position), XMLoadFloat3(&eye))));
-			//m_camera.SetLookTo(eye, look, m_up);
 			m_camera.SetLookAt(eye, m_position, m_up);
 		}
 	}

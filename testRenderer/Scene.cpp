@@ -157,7 +157,9 @@ void CScene::Update(const float deltaTime)
 void CScene::Collide()
 {
 	//충돌 처리
+	CheckPlayerByObjectCollision();
 
+	CheckObjectByObjectCollision();
 }
 
 void CScene::Render(HDC hDCFrameBuffer)
@@ -171,4 +173,31 @@ void CScene::Render(HDC hDCFrameBuffer)
 	}
 	
 	m_pPlayer->Render(hDCFrameBuffer);
+}
+
+void CScene::CheckPlayerByObjectCollision()
+{
+	BoundingOrientedBox playerOOBB = m_pPlayer->GetOOBB();
+
+	for (std::unique_ptr<CGameObject>& gameObject : m_gameObjects)
+	{
+		//임시로 설정
+		if (!gameObject->GetPickingDetection())
+		{
+			continue;
+		}
+
+		if (playerOOBB.Contains(gameObject->GetOOBB()))
+		{
+			gameObject->SetCollidedObject(m_pPlayer);
+			m_pPlayer->SetCollidedObject(gameObject.get());
+			break;
+		}
+	}
+}
+
+void CScene::CheckObjectByObjectCollision()
+{
+
+
 }

@@ -12,7 +12,9 @@ CGameObject::CGameObject()
 	, m_totalRotation{ 0.0f, 0.0f, 0.0f }
 	, m_moveSpeed{ 0.0f }
 	, m_rotationSpeed{ 0.0f }
+	, m_collidedObject{ nullptr }
 	, m_pickingDetection{ true }
+	, m_OOBB{ BoundingOrientedBox() }
 {
 	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixIdentity());
 }
@@ -39,6 +41,8 @@ CGameObject::CGameObject(CGameObject&& other) noexcept
 	m_moveSpeed = other.m_moveSpeed;
 	m_rotationSpeed = other.m_rotationSpeed;
 	m_pickingDetection = other.m_pickingDetection;
+	m_collidedObject = other.m_collidedObject;
+	m_OOBB = other.m_OOBB;
 
 	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&other.m_worldMatrix));
 
@@ -179,6 +183,11 @@ void CGameObject::SetMoveSpeed(const float moveSpeed)
 	m_moveSpeed = moveSpeed;
 }
 
+void CGameObject::SetCollidedObject(CGameObject* gameObject)
+{
+	m_collidedObject = gameObject;
+}
+
 void CGameObject::SetPickingDetection(const bool detection)
 {
 	m_pickingDetection = detection;
@@ -297,7 +306,9 @@ void CGameObject::reset()
 	m_totalRotation = { 0.0f, 0.0f, 0.0f };
 	m_moveSpeed = 0.0f;
 	m_rotationSpeed = 0.0f;
+	m_collidedObject = nullptr;
 	m_pickingDetection = true;
+	m_OOBB = BoundingOrientedBox();
 }
 
 void CGameObject::SetAllColor(CGameObject* gameObject, DWORD color)

@@ -200,34 +200,34 @@ void CFloor::Render(HDC hDCFrameBuffer)
 	XMFLOAT3A firstProject, prevProject, pPrevProject;
 	bool bFirstProject, bPrevProject, bPPrevProject;
 
-	//for (int i = 0; i < m_polygonsBuffer.size(); ++i)
-	//{
-	//	CVertex firstVertex = m_polygonsBuffer[i]->GetBuffer()[0];
+	for (int i = 0; i < m_polygonsBuffer.size(); ++i)
+	{
+		CVertex firstVertex = m_polygonsBuffer[i]->GetBuffer()[0];
 
-	//	firstProject = prevProject = CGraphicsPipeline::Project(firstVertex.GetPosition());
+		firstProject = prevProject = CGraphicsPipeline::Project(firstVertex.GetPosition());
 
-	//	bFirstProject = bPrevProject = (firstProject.x <= 1) && (firstProject.x >= -1) && (firstProject.y <= 1) && (firstProject.y >= -1) && (firstProject.z >= 0) && (firstProject.z <= 1);
+		bFirstProject = bPrevProject = (firstProject.x <= 1) && (firstProject.x >= -1) && (firstProject.y <= 1) && (firstProject.y >= -1) && (firstProject.z >= 0) && (firstProject.z <= 1);
 
-	//	for (int j = 1; j < m_polygonsBuffer[i]->GetBuffer().size(); ++j)
-	//	{
-	//		CVertex curVertex = m_polygonsBuffer[i]->GetBuffer()[j];
-	//		XMFLOAT3A curProject = CGraphicsPipeline::Project(curVertex.GetPosition());
-	//		bool bCurProject;
+		for (int j = 1; j < m_polygonsBuffer[i]->GetBuffer().size(); ++j)
+		{
+			CVertex curVertex = m_polygonsBuffer[i]->GetBuffer()[j];
+			XMFLOAT3A curProject = CGraphicsPipeline::Project(curVertex.GetPosition());
+			bool bCurProject;
 
-	//		bCurProject = (curProject.x <= 1) && (curProject.x >= -1) && (curProject.y <= 1) && (curProject.y >= -1) && (curProject.z >= 0) && (curProject.z <= 1);
+			bCurProject = (curProject.x <= 1) && (curProject.x >= -1) && (curProject.y <= 1) && (curProject.y >= -1) && (curProject.z >= 0) && (curProject.z <= 1);
 
-	//		if (bPrevProject || bCurProject)
-	//		{
-	//			//그린다.
-	//			Draw2DLine(hDCFrameBuffer, prevProject, curProject);
-	//		}
+			if (bPrevProject || bCurProject)
+			{
+				//그린다.
+				Draw2DLine(hDCFrameBuffer, prevProject, curProject);
+			}
 
-	//		pPrevProject = prevProject;
-	//		prevProject = curProject;
+			pPrevProject = prevProject;
+			prevProject = curProject;
 
-	//		bPPrevProject = bPrevProject;
-	//		bPrevProject = bCurProject;
-	//	}
+			bPPrevProject = bPrevProject;
+			bPrevProject = bCurProject;
+		}
 
 		//if (bFirstProject || bPrevProject)
 		//{
@@ -237,7 +237,7 @@ void CFloor::Render(HDC hDCFrameBuffer)
 		//		Draw2DLine(hDCFrameBuffer, pPrevProject, firstProject);
 		//	}
 		//}
-	//}
+	}
 }
 
 /// <CFloor>

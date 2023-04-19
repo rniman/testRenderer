@@ -139,7 +139,7 @@ void CGameFramework::UpdateObjects()
 
 void CGameFramework::CollideObjects()
 {
-	m_pScene->Collide();
+	m_pScene->Collide((float)m_gameTimer.GetDeltaTime());
 }
 
 void CGameFramework::RenderObejcts()

@@ -191,7 +191,7 @@ void CPlayer::Update(const float deltaTime)
 	}
 }
 
-void CPlayer::Collide()
+void CPlayer::Collide(const float deltaTime)
 {
 	
 }
@@ -212,7 +212,6 @@ CTankPlayer::CTankPlayer()
 	, m_gun{ nullptr }
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
-	, m_remainingRotation{ 0.0f }
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_oldPosition = m_position;
@@ -243,7 +242,6 @@ CTankPlayer::CTankPlayer(const CCamera& camera)
 	, m_gun{ nullptr }
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
-	, m_remainingRotation{ 0.0f }
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_oldPosition = m_position;
@@ -284,9 +282,6 @@ CGameObject* CTankPlayer::GetGun() const
 
 void CTankPlayer::AddRotationAngle(const float pitch, const float yaw, const float roll)
 {
-	if (m_collidedObject)
-		return;
-
 	m_oldTotalRotation = m_totalRotation;
 	CPlayer::AddRotationAngle(pitch, yaw, roll);
 	m_bMainCamera = true;
@@ -347,10 +342,16 @@ void CTankPlayer::HandleInput(DWORD direction)
 	}
 }
 
-void CTankPlayer::Collide()
+void CTankPlayer::Collide(const float deltaTime)
 {
 	m_moveSpeed = 0.0f;
 	m_position = m_oldPosition;
+	m_totalRotation = m_oldTotalRotation;
+
+	Rotate(deltaTime);
+	SetOOBB();
+	
+	m_turret->Update(deltaTime);
 
 	m_camera.BackCameraPosition();
 	m_camera.SetLookAt(m_camera.GetPosition(), m_position, m_up);
@@ -390,7 +391,10 @@ void CTankPlayer::Move(const float deltaTime)
 
 	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_moveDirection) * m_moveSpeed * deltaTime));
 
-	m_oldPosition = m_position;
+	if (!XMVector3Equal(XMLoadFloat3A(&m_oldPosition), XMLoadFloat3A(&m_position)))
+	{
+		m_oldPosition = m_position;
+	}
 
 	m_position.x = m_worldMatrix._41;
 	m_position.y = m_worldMatrix._42;
@@ -413,40 +417,31 @@ void CTankPlayer::Update(const float deltaTime)
 			XMFLOAT3A cameraPosition = m_camera.GetPosition();
 			p0 = XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)) - XMLoadFloat3A(&m_position);
 			p1 = XMLoadFloat3A(&cameraPosition) - XMLoadFloat3A(&m_position);
-			//axis = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-			axis = XMVector3Normalize(XMVector3Cross(p0, p1));
+			
+			XMFLOAT3A rotateDirection;
+			XMStoreFloat3A(&rotateDirection,XMVector3Normalize(XMVector3Cross(p0, p1)));
 
-			XMFLOAT3A q;
-			XMStoreFloat3A(&q, axis);
-
+			//XMFLOAT3A q;
+			//XMStoreFloat3A(&q, axis);
+			
 			XMVECTOR angle;
 			angle = XMVector3AngleBetweenVectors(p0, p1);
-			float x = XMConvertToDegrees(XMVectorGetX(angle));
-			if (!XMVector3Equal(XMLoadFloat3A(&m_oldTotalRotation), XMLoadFloat3A(&m_totalRotation)))
+			float angleDegree = XMConvertToDegrees(XMVectorGetX(angle));
+
+			if (rotateDirection.y < 0.0f)
 			{
-				m_remainingRotation = x;
-				m_oldTotalRotation = m_totalRotation;
-				//m_rotationNum = 0;
-			}
-			else if (!XMVector3IsNaN(XMLoadFloat3A(&m_moveDirection)))
-			{
-				if (m_remainingRotation <= 0.0f)
-				{
-					m_remainingRotation = x;
-					m_oldTotalRotation = m_totalRotation;
-					m_rotationNum = 0;
-				}
+				axis = XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
 			}
 			else
 			{
-				m_remainingRotation += -2.0f;
+				axis = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 			}
 
-			m_rotationNum += deltaTime;
+			m_elipsedRotation += deltaTime;
 			XMMATRIX rotate;
-			rotate = XMMatrixRotationAxis(axis, -2.0f * m_rotationNum);
+			rotate = XMMatrixRotationAxis(axis, XMConvertToRadians(-180.0f) * m_elipsedRotation);
 
-			if (x <= 10.0f || m_remainingRotation <= 0.0f)
+			if (angleDegree <= 5.0f)
 			{
 				XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)));
 				XMFLOAT3A look;
@@ -454,7 +449,7 @@ void CTankPlayer::Update(const float deltaTime)
 				m_camera.SetLookTo(eye, look, m_up);
 
 				XMStoreFloat3A(&m_cameraRotation, XMVectorZero());
-				m_rotationNum = 0;
+				m_elipsedRotation = 0.0f;
 			}
 			else
 			{

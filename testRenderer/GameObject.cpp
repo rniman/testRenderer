@@ -282,7 +282,7 @@ void CGameObject::Update(const float deltaTime)
 	//충돌 처리
 }
 
-void CGameObject::Collide()
+void CGameObject::Collide(const float deltaTime)
 {
 }
 

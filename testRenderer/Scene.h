@@ -17,11 +17,11 @@ public:
 
 	void HandleInput(DWORD);
 	void Update(const float deltaTime = 0.01667f);
-	void Collide();
+	void Collide(const float deltaTime = 0.01667f);
 	void Render(HDC hDCFrameBuffer);
 
-	void CheckPlayerByObjectCollision();
-	void CheckObjectByObjectCollision();
+	void CheckPlayerByObjectCollision(const float deltaTime = 0.01667f);
+	void CheckObjectByObjectCollision(const float deltaTime = 0.01667f);
 
 private:
 	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;

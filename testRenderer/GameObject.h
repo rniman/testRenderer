@@ -47,7 +47,7 @@ public:
 	virtual void Rotate(const float deltaTime);
 	virtual void Move(const float deltaTime);
 	virtual void Update(const float deltaTime);
-	virtual void Collide();
+	virtual void Collide(const float deltaTime);
 	virtual void Render(HDC hDCFrameBuffer);
 
 	void reset();

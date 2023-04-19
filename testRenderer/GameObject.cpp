@@ -112,6 +112,11 @@ XMFLOAT3A CGameObject::GetTotalRotation() const
 	return m_totalRotation;
 }
 
+float CGameObject::GetRotateSpeed() const
+{
+	return m_rotationSpeed;
+}
+
 BoundingOrientedBox CGameObject::GetOOBB() const
 {
 	return m_OOBB;
@@ -227,7 +232,7 @@ bool CGameObject::CheckPicking(const CGameObject* gameObject, const XMFLOAT3A& p
 
 void CGameObject::Rotate(const float deltaTime)
 {
-	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(deltaTime * m_rotationSpeed)));
+	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(m_rotationSpeed)));
 }
 
 void CGameObject::Move(const float deltaTime)

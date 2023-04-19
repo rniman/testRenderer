@@ -310,9 +310,16 @@ void CTankPlayer::FireBullet()
 		bullet.SetPosition(firePosition);
 
 		XMFLOAT3A fireDirection = m_look;
-		//XMStoreFloat3A(&fireDirection, )
+		XMFLOAT3A turretRotationAngle = m_turret->GetTotalRotation();
+		XMFLOAT3A gunRotationAngle = m_gun->GetTotalRotation();
 
-		bullet.SetForward(m_look);
+		XMFLOAT4X4A turretMatrix = m_turret->GetWorldMatrix();
+		XMFLOAT4X4A gunMatrix = m_gun->GetWorldMatrix();
+
+		//XMStoreFloat3A(&fireDirection, XMVector3TransformNormal(XMLoadFloat3A(&fireDirection), XMLoadFloat4x4A(&turretMatrix)));
+		XMStoreFloat3A(&fireDirection, XMVector3TransformNormal(XMLoadFloat3A(&fireDirection), XMLoadFloat4x4A(&gunMatrix)));
+
+		bullet.SetForward(fireDirection);
 		m_coolTime = 2.0f;
 		break;
 	}
@@ -384,7 +391,7 @@ void CTankPlayer::Update(const float deltaTime)
 			XMMATRIX rotate;
 			rotate = XMMatrixRotationAxis(axis, -2.0f * m_rotationNum);
 
-			if (x <= 7.0f || m_remainingRotation <= 0.0f)
+			if (x <= 10.0f || m_remainingRotation <= 0.0f)
 			{
 				XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&m_cameraOffset), XMLoadFloat4x4A(&m_worldMatrix)));
 				XMFLOAT3A look;
@@ -420,7 +427,7 @@ void CTankPlayer::Update(const float deltaTime)
 		XMStoreFloat3A(&eye, XMVector3TransformCoord(XMLoadFloat3A(&eye), XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position))));
 		m_camera.SetLookAt(eye, m_position, m_up);
 	}
-		
+
 	m_camera.Update(deltaTime);
 
 	if (m_sibling)

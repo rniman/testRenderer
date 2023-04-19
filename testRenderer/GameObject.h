@@ -21,6 +21,7 @@ public:
 	XMFLOAT4X4A GetWorldMatrix()const;
 	XMFLOAT3A GetPosition() const;
 	XMFLOAT3A GetTotalRotation() const;
+	float GetRotateSpeed() const;
 	bool GetPickingDetection() const;
 	BoundingOrientedBox GetOOBB() const;
 

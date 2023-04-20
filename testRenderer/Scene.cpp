@@ -63,7 +63,7 @@ void CScene::CreateScene()
 	m_gameObjects[3]->SetMesh(tankMesh);
 	m_gameObjects[3]->SetColor(RGB(255, 0, 255));
 	m_gameObjects[3]->SetPosition(0.0f, 0.0f, 20.0f);
-	m_gameObjects[3]->AddRotationAngle(0.0f, 180.0f, 0.0f);
+	//m_gameObjects[3]->AddRotationAngle(0.0f, 180.0f, 0.0f);
 
 	//터렛
 	std::shared_ptr<CMesh> turretMesh = std::make_shared<CCube>(3.0f, 4.0f, 5.0f);
@@ -136,20 +136,21 @@ void CScene::HandleInput(DWORD downKey)
 	m_pPlayer->SetInactiveMoveForce();
 	if (downKey)
 	{
-		//m_pPlayer->SetDirection();
 		m_pPlayer->HandleInput(downKey);
 	}
 }
 
 void CScene::Update(const float deltaTime)
 {
-	if (m_pPlayer)
-	{
-		m_pPlayer->Update(deltaTime);
-	}
+	m_pPlayer->Update(deltaTime);
 
-	for (std::unique_ptr<CGameObject>& gameObject : m_gameObjects)
+	for (const std::unique_ptr<CGameObject>& gameObject : m_gameObjects)
 	{
+		if (!gameObject->GetActive())
+		{
+			continue;
+		}
+
 		gameObject->Update(deltaTime);
 	}
 }
@@ -159,7 +160,9 @@ void CScene::Collide(const float deltaTime)
 	//충돌 처리
 	CheckPlayerByObjectCollision();
 
-	CheckObjectByObjectCollision();
+	//CheckObjectByObjectCollision();
+
+	CheckBulletByObjectCollision();
 }
 
 void CScene::Render(HDC hDCFrameBuffer)
@@ -167,12 +170,20 @@ void CScene::Render(HDC hDCFrameBuffer)
 	CGraphicsPipeline::SetCameraProejectdMatrix(m_pPlayer->GetCamera().GetCameraProjectMatrix());
 	CGraphicsPipeline::SetViewport(m_pPlayer->GetCamera().GetViewport());
 	
-	for (std::unique_ptr<CGameObject>& gameObject : m_gameObjects)
-	{
-		if (m_pPlayer->GetCamera().GetWorldFrustum().Intersects(gameObject->GetOOBB())) gameObject->Render(hDCFrameBuffer);
-	}
-	
 	m_pPlayer->Render(hDCFrameBuffer);
+
+	for (const std::unique_ptr<CGameObject>& gameObject : m_gameObjects)
+	{
+		if (!gameObject->GetActive())
+		{
+			continue;
+		}
+
+		if (m_pPlayer->GetCamera().GetWorldFrustum().Intersects(gameObject->GetOOBB()))
+		{
+			gameObject->Render(hDCFrameBuffer);
+		}
+	}
 }
 
 void CScene::CheckPlayerByObjectCollision(const float deltaTime)
@@ -180,8 +191,13 @@ void CScene::CheckPlayerByObjectCollision(const float deltaTime)
 	BoundingOrientedBox playerOOBB = m_pPlayer->GetOOBB();
 	m_pPlayer->SetCollidedObject(nullptr);
 
-	for (std::unique_ptr<CGameObject>& gameObject : m_gameObjects)
+	for (const std::unique_ptr<CGameObject>& gameObject : m_gameObjects)
 	{
+		if (!gameObject->GetActive())
+		{
+			continue;
+		}
+
 		gameObject->SetCollidedObject(nullptr);
 		if (m_pPlayer->GetCollidedObject())
 		{
@@ -203,12 +219,55 @@ void CScene::CheckPlayerByObjectCollision(const float deltaTime)
 
 	if (m_pPlayer->GetCollidedObject())
 	{
-		static_cast<CTankPlayer*>(m_pPlayer)->Collide(deltaTime);
+		m_pPlayer->Collide(deltaTime);
 	}
 }
 
 void CScene::CheckObjectByObjectCollision(const float deltaTime)
 {
 
-
 }
+
+void CScene::CheckBulletByObjectCollision(const float deltaTime)
+{
+	for (CBulletObject& bullet : static_cast<CTankPlayer*>(m_pPlayer)->GetBullets())
+	{
+		if (!bullet.GetActive())
+		{
+			continue;
+		}
+
+		for (const std::unique_ptr<CGameObject>& gameObject : m_gameObjects)
+		{
+			gameObject->SetCollidedObject(nullptr);
+			CEnemyTank* enemy = dynamic_cast<CEnemyTank*>(gameObject.get());
+			if (!bullet.GetOOBB().Intersects(gameObject->GetOOBB()))
+			{
+				if (!enemy)
+				{
+					continue;
+				}
+				
+				if (!bullet.GetOOBB().Intersects(enemy->GetTurret()->GetOOBB()) && !bullet.GetOOBB().Intersects(enemy->GetGun()->GetOOBB()))
+				{
+					continue;
+				}
+
+				int a = 1;
+			}
+			
+			if (!gameObject->GetPickingDetection())
+			{
+				//총만 비활성화
+				bullet.DeleteBullet();
+				continue;
+			}
+
+			//서로 충돌 처리
+			bullet.DeleteBullet();
+			gameObject->SetCollidedObject(&bullet);
+			gameObject->Collide(deltaTime);
+		}
+	}
+}
+

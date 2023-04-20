@@ -5,6 +5,7 @@ CBulletObject::CBulletObject()
 	: CGameObject()
 	, m_elipsed{ 0.0f }
 	, m_duration{ 5.0f }
+	, m_damage{ 10 }
 {
 	m_active = false;
 	m_color = RGB(200, 170, 100);
@@ -18,9 +19,19 @@ CBulletObject::~CBulletObject()
 
 }
 
+UINT CBulletObject::GetDamge() const
+{
+	return m_damage;
+}
+
 void CBulletObject::SetActive()
 {
 	m_active = !m_active;
+}
+
+void CBulletObject::SetDamage(const float damage)
+{
+	m_damage = damage;
 }
 
 void CBulletObject::SetForward(const XMFLOAT3A& forward)
@@ -28,9 +39,15 @@ void CBulletObject::SetForward(const XMFLOAT3A& forward)
 	XMStoreFloat3A(&m_forward, XMVector3Normalize(XMLoadFloat3A(&forward)));
 }
 
+void CBulletObject::DeleteBullet()
+{
+	SetActive();
+	m_elipsed = 0.0f;
+}
+
 void CBulletObject::Rotate(const float deltaTime)
 {
-	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(m_rotationSpeed * deltaTime));
+	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(m_rotationSpeed));
 
 	XMStoreFloat4x4A(&m_worldMatrix, rotateMatrix * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
 }
@@ -53,15 +70,15 @@ void CBulletObject::Update(const float deltaTime)
 
 	if (m_elipsed > m_duration)
 	{
-		SetActive();
-		m_elipsed = 0.0f;
+		DeleteBullet();
 		return;
 	}
 
-	AddRotationAngle(0.0f, 0.0f, 1.0f);
+	AddRotationAngle(0.0f, 0.0f, deltaTime);
 	
 	Rotate(deltaTime);
 	Move(deltaTime);
+	SetOOBB();
 
 	m_elipsed += deltaTime;
 }

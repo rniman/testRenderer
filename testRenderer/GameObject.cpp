@@ -262,7 +262,6 @@ void CGameObject::Update(const float deltaTime)
 {
 	Rotate(deltaTime);
 	Move(deltaTime);
-
 	if (m_parent)
 	{
 		XMFLOAT4X4A parentWorld = m_parent->GetWorldMatrix();

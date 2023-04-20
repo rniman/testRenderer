@@ -22,6 +22,7 @@ public:
 
 	void CheckPlayerByObjectCollision(const float deltaTime = 0.01667f);
 	void CheckObjectByObjectCollision(const float deltaTime = 0.01667f);
+	void CheckBulletByObjectCollision(const float deltaTime = 0.01667f);
 
 private:
 	std::vector<std::unique_ptr<CGameObject>> m_gameObjects;

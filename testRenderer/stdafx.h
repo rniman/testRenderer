@@ -48,4 +48,4 @@ constexpr DWORD DIR_LEFT{ 0x08 };
 constexpr DWORD DIR_UP{ 0x10 };
 constexpr DWORD DIR_DOWN{ 0x20 };
 
-constexpr UCHAR MAX_BULLET{ 50 };
+constexpr UCHAR MAX_BULLET{ 10 };

@@ -53,6 +53,7 @@ public:
 
 	CGameObject* GetTurret() const;
 	CGameObject* GetGun() const;
+	std::vector<CBulletObject>& GetBullets();
 
 	virtual void AddRotationAngle(const float pitch, const float yaw, const float roll) override;
 	virtual void AddCameraRotation(const float pitch, const float yaw, const float roll) override;
@@ -75,6 +76,8 @@ private:
 
 	CGameObject* m_turret;
 	CGameObject* m_gun;
+
+	UINT m_hp;
 
 	std::vector<CBulletObject> m_bullet;
 	float m_coolTime;

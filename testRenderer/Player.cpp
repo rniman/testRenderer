@@ -212,6 +212,7 @@ CTankPlayer::CTankPlayer()
 	, m_gun{ nullptr }
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
+	, m_hp{ 100 }
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_oldPosition = m_position;
@@ -242,6 +243,7 @@ CTankPlayer::CTankPlayer(const CCamera& camera)
 	, m_gun{ nullptr }
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
+	, m_hp{ 100 }
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_oldPosition = m_position;
@@ -278,6 +280,11 @@ CGameObject* CTankPlayer::GetTurret() const
 CGameObject* CTankPlayer::GetGun() const
 {
 	return m_gun;
+}
+
+std::vector<CBulletObject>& CTankPlayer::GetBullets()
+{
+	return m_bullet;
 }
 
 void CTankPlayer::AddRotationAngle(const float pitch, const float yaw, const float roll)

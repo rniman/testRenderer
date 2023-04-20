@@ -7,9 +7,14 @@ public:
 	CBulletObject();
 	virtual ~CBulletObject();
 
+	UINT GetDamge() const;
+
 	void SetActive();
 	void SetForward(const XMFLOAT3A& forward);
-	
+	void SetDamage(const float hp);
+
+	void DeleteBullet();
+
 	virtual void Rotate(const float deltaTime) override;
 	virtual void Move(const float deltaTime) override;
 
@@ -18,6 +23,8 @@ public:
 
 private:
 	XMFLOAT3A m_forward;
+
+	UINT m_damage;
 
 	float m_elipsed;
 	float m_duration;

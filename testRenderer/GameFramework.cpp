@@ -121,13 +121,14 @@ void CGameFramework::HandleInput()
 	//if (GetAsyncKeyState(VK_Q) & 0x8000) m_keyDown |= DIR_UP;
 	//if (GetAsyncKeyState(VK_E) & 0x8000) m_keyDown |= DIR_DOWN;
 	
-	if (GetAsyncKeyState(VK_Q) & 0x8000) static_cast<CTankPlayer*>(m_pScene->GetPlayer())->GetTurret()->AddRotationAngle(0.0f, -m_gameTimer.GetDeltaTime() , 0.0f);
-	if (GetAsyncKeyState(VK_E) & 0x8000) static_cast<CTankPlayer*>(m_pScene->GetPlayer())->GetTurret()->AddRotationAngle(0.0f, m_gameTimer.GetDeltaTime(), 0.0f);
+	CTankPlayer* pTank = static_cast<CTankPlayer*>(m_pScene->GetPlayer());
+	if (GetAsyncKeyState(VK_Q) & 0x8000) pTank->GetTurret()->AddRotationAngle(0.0f, -m_gameTimer.GetDeltaTime(), 0.0f);
+	if (GetAsyncKeyState(VK_E) & 0x8000) pTank->GetTurret()->AddRotationAngle(0.0f, m_gameTimer.GetDeltaTime(), 0.0f);
 	
-	if (GetAsyncKeyState(VK_C) & 0x8000 && static_cast<CTankPlayer*>(m_pScene->GetPlayer())->GetGun()->GetTotalRotation().x < 60.0f) static_cast<CTankPlayer*>(m_pScene->GetPlayer())->GetGun()->AddRotationAngle(m_gameTimer.GetDeltaTime(), 0.0f, 0.0f);
-	if (GetAsyncKeyState(VK_Z) & 0x8000 && static_cast<CTankPlayer*>(m_pScene->GetPlayer())->GetGun()->GetTotalRotation().x > -45.0f) static_cast<CTankPlayer*>(m_pScene->GetPlayer())->GetGun()->AddRotationAngle(-m_gameTimer.GetDeltaTime(), 0.0f, 0.0f);
+	if (GetAsyncKeyState(VK_C) & 0x8000 && pTank->GetGun()->GetTotalRotation().x < 60.0f) pTank->GetGun()->AddRotationAngle(m_gameTimer.GetDeltaTime(), 0.0f, 0.0f);
+	if (GetAsyncKeyState(VK_Z) & 0x8000 && pTank->GetGun()->GetTotalRotation().x > -45.0f) pTank->GetGun()->AddRotationAngle(-m_gameTimer.GetDeltaTime(), 0.0f, 0.0f);
 
-	if (GetAsyncKeyState(VK_SPACE) & 0x8000) static_cast<CTankPlayer*>((m_pScene->GetPlayer()))->FireBullet();
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000) pTank->FireBullet();
 
 	m_pScene->HandleInput(m_keyDown);
 }

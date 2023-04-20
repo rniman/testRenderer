@@ -3,11 +3,17 @@
 
 CEenemyObject::CEenemyObject()
 	: CGameObject()	
+	, m_hp{ 0 }
 {
 }
 
 CEenemyObject::~CEenemyObject()
 {
+}
+
+UINT CEenemyObject::GetHP() const
+{
+	return m_hp;
 }
 
 void CEenemyObject::AddRotationAngle(const float pitch, const float yaw, const float roll)
@@ -32,7 +38,17 @@ void CEenemyObject::Move(const float deltaTime)
 
 void CEenemyObject::Update(const float deltaTime)
 {
+	if (m_hp <= 0)
+	{
+		m_active = false;
+		return;
+	}
+
 	CGameObject::Update(deltaTime);
+}
+
+void CEenemyObject::Collide(const float deltaTima)
+{
 }
 
 void CEenemyObject::Render(HDC hDCFrameBuffer)
@@ -49,6 +65,8 @@ CEnemyTank::CEnemyTank()
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
 {
+	m_hp = 100;
+
 	m_rotationSpeed = 90.0f;
 	m_moveSpeed = 0.0f;
 
@@ -75,6 +93,16 @@ CEnemyTank::~CEnemyTank()
 	m_gun = nullptr;
 }
 
+CGameObject* CEnemyTank::GetTurret() const
+{
+	return m_turret;
+}
+
+CGameObject* CEnemyTank::GetGun() const
+{
+	return m_gun;
+}
+
 void CEnemyTank::AddRotationAngle(const float pitch, const float yaw, const float roll)
 {
 	CEenemyObject::AddRotationAngle(pitch, yaw, roll);
@@ -95,10 +123,16 @@ void CEnemyTank::Move(const float deltaTime)
 	CEenemyObject::Move(deltaTime);
 }
 
+void CEnemyTank::Collide(const float deltaTima)
+{
+	if (dynamic_cast<CBulletObject*>(m_collidedObject))
+	{
+		m_hp -= static_cast<CBulletObject*>(m_collidedObject)->GetDamge();
+	}
+}
+
 void CEnemyTank::Update(const float deltaTime)
 {
-	//AddRotationAngle(0.0f, deltaTime * m_rotationSpeed, 0.0f);
-
 	CEenemyObject::Update(deltaTime);
 }
 

@@ -240,6 +240,11 @@ void CScene::CheckBulletByObjectCollision(const float deltaTime)
 		for (const std::unique_ptr<CGameObject>& gameObject : m_gameObjects)
 		{
 			gameObject->SetCollidedObject(nullptr);
+			if (!gameObject->GetActive())
+			{
+				continue;
+			}
+			
 			CEnemyTank* enemy = dynamic_cast<CEnemyTank*>(gameObject.get());
 			if (!bullet.GetOOBB().Intersects(gameObject->GetOOBB()))
 			{

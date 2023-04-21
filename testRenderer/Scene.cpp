@@ -63,7 +63,7 @@ void CScene::CreateScene()
 	m_gameObjects[3]->SetMesh(tankMesh);
 	m_gameObjects[3]->SetColor(RGB(255, 0, 255));
 	m_gameObjects[3]->SetPosition(0.0f, 0.0f, 20.0f);
-	//m_gameObjects[3]->AddRotationAngle(0.0f, 180.0f, 0.0f);
+	m_gameObjects[3]->AddRotationAngle(0.0f, 180.0f, 0.0f);
 
 	//ем╥©
 	std::shared_ptr<CMesh> turretMesh = std::make_shared<CCube>(3.0f, 4.0f, 5.0f);

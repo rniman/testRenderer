@@ -357,7 +357,7 @@ CStick::CStick(const float width, const float height, const float depth)
 	bottomPlane->SetVertex(3, CVertex(-halfWidth, -halfHeight, 0.0f));
 	SetPolygon(5, *bottomPlane.release());
 
-	m_OOBB = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, depth / 2.0f), XMFLOAT3(halfWidth, halfHeight, depth), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+	m_OOBB = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, depth / 2.0f), XMFLOAT3(halfWidth, halfHeight, depth / 2.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
 CStick::~CStick()

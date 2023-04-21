@@ -76,4 +76,25 @@ protected:
 	BoundingOrientedBox m_OOBB;
 };
 
+/// <CEenemyObject>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+/// <CObstacleObject>
 
+class CObstacleObject : public CGameObject
+{
+public:
+	CObstacleObject();
+	virtual ~CObstacleObject();
+
+	virtual void AddRotationAngle(const float pitch, const float yaw, const float roll) override;
+	virtual void AddRotationAngle(const XMFLOAT3A& rotate) override;
+
+	virtual void Rotate(const float deltaTime) override;
+	virtual void Move(const float deltaTime) override;
+	virtual void Update(const float deltaTime) override;
+	virtual void Collide(const float deltaTime) override;
+	virtual void Render(HDC hDCFrameBuffer) override;
+
+private:
+	UINT m_hp;
+};

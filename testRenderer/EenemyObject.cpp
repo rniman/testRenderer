@@ -128,6 +128,10 @@ void CEnemyTank::Collide(const float deltaTima)
 	if (dynamic_cast<CBulletObject*>(m_collidedObject))
 	{
 		m_hp -= static_cast<CBulletObject*>(m_collidedObject)->GetDamge();
+		if (m_hp <= 0)
+		{
+			m_active = false;
+		}
 	}
 }
 

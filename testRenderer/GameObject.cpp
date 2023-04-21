@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameObject.h"
+#include "BulletObject.h"
 
 CGameObject::CGameObject()
 	: m_active{ true }
@@ -327,4 +328,71 @@ void CGameObject::SetAllColor(CGameObject* gameObject, DWORD color)
 		gameObject->SetAllColor(gameObject->GetChild(), color);
 		gameObject->SetAllColor(gameObject->GetSibling(), color);
 	}
+}
+
+/// <CEenemyObject>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+/// <CObstacleObject>
+
+CObstacleObject::CObstacleObject()
+	: CGameObject()
+	, m_hp{ 50 }
+{
+}
+
+CObstacleObject::~CObstacleObject()
+{
+}
+
+void CObstacleObject::AddRotationAngle(const float pitch, const float yaw, const float roll)
+{
+	CGameObject::AddRotationAngle(pitch, yaw, roll);
+}
+
+void CObstacleObject::AddRotationAngle(const XMFLOAT3A& rotate)
+{
+	CGameObject::AddRotationAngle(rotate);
+}
+
+void CObstacleObject::Rotate(const float deltaTime)
+{
+	CGameObject::Rotate(deltaTime);
+}
+
+void CObstacleObject::Move(const float deltaTime)
+{
+	CGameObject::Move(deltaTime);
+}
+
+void CObstacleObject::Update(const float deltaTime)
+{
+	Rotate(deltaTime);
+	Move(deltaTime);
+	SetOOBB();
+}
+
+void CObstacleObject::Collide(const float deltaTime)
+{
+	if (dynamic_cast<CBulletObject*>(m_collidedObject))
+	{
+		m_hp -= static_cast<CBulletObject*>(m_collidedObject)->GetDamge();
+		if (m_hp <= 0)
+		{
+			m_active = false;
+		}
+	}
+}
+
+void CObstacleObject::Render(HDC hDCFrameBuffer)
+{
+	if (!m_mesh)
+		return;
+	HPEN hPen = CreatePen(PS_SOLID, 0, m_color);
+	HPEN hOldPen = (HPEN)SelectObject(hDCFrameBuffer, hPen);
+
+	CGraphicsPipeline::SetWorldMatrix(m_worldMatrix);
+	m_mesh->Render(hDCFrameBuffer);
+
+	SelectObject(hDCFrameBuffer, hOldPen);
+	DeleteObject(hPen);
 }

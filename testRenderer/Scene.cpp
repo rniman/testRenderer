@@ -34,16 +34,16 @@ void CScene::CreateScene()
 	m_gameObjects[0]->SetColor(RGB(100, 100, 100));
 	m_gameObjects[0]->SetPosition(0.0f, 0.0f, 0.0f);
 
-	std::shared_ptr<CMesh> cubeMesh = std::make_shared<CCube>();
-	m_gameObjects.emplace_back(std::make_unique<CGameObject>());
-	m_gameObjects[1]->SetMesh(cubeMesh);
-	m_gameObjects[1]->SetColor(RGB(0, 0, 255));
-	m_gameObjects[1]->SetPosition(0.0f, 0.0f, 15.0f);
+	std::shared_ptr<CMesh> obstacleMesh = std::make_shared<CCube>(10.0f, 10.0f, 10.0f);
+	m_gameObjects.emplace_back(std::make_unique<CObstacleObject>());
+	m_gameObjects[1]->SetMesh(obstacleMesh);
+	m_gameObjects[1]->SetColor(RGB(0, 255, 255));
+	m_gameObjects[1]->SetPosition(15.0f, 5.0f, 15.0f);
 	
-	m_gameObjects.emplace_back(std::make_unique<CGameObject>());
-	m_gameObjects[2]->SetMesh(cubeMesh);
+	m_gameObjects.emplace_back(std::make_unique<CObstacleObject>());
+	m_gameObjects[2]->SetMesh(obstacleMesh);
 	m_gameObjects[2]->SetColor(RGB(0, 255, 255));
-	m_gameObjects[2]->SetPosition(0.0f, -2.0f, 20.0f);
+	m_gameObjects[2]->SetPosition(5.0f, 5.0f, 15.0f);
 
 	//Ä«¸Þ¶ó
 	CCamera newCamera;

@@ -10,7 +10,7 @@ CBulletObject::CBulletObject()
 	m_active = false;
 	m_color = RGB(200, 170, 100);
 
-	m_rotationSpeed = 720.0f;
+	m_rotationSpeed = 360.0f * 3;
 	m_moveSpeed = 100.0f;
 }
 
@@ -47,7 +47,9 @@ void CBulletObject::DeleteBullet()
 
 void CBulletObject::Rotate(const float deltaTime)
 {
-	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(m_rotationSpeed));
+	XMMATRIX rotateMatrix = XMMatrixRotationAxis(XMLoadFloat3A(&m_forward), XMConvertToRadians(m_totalRotation.z * m_rotationSpeed));
+
+	//XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(m_rotationSpeed));
 
 	XMStoreFloat4x4A(&m_worldMatrix, rotateMatrix * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
 }
@@ -74,7 +76,8 @@ void CBulletObject::Update(const float deltaTime)
 		return;
 	}
 
-	AddRotationAngle(0.0f, 0.0f, deltaTime);
+	
+	AddRotationAngle(0.0f, 0.0f, -deltaTime);
 	
 	Rotate(deltaTime);
 	Move(deltaTime);

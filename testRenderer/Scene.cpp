@@ -257,8 +257,6 @@ void CScene::CheckBulletByObjectCollision(const float deltaTime)
 				{
 					continue;
 				}
-
-				int a = 1;
 			}
 			
 			if (!gameObject->GetPickingDetection())

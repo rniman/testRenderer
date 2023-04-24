@@ -23,9 +23,11 @@ public:
 	XMFLOAT3A GetTotalRotation() const;
 	float GetRotateSpeed() const;
 	CGameObject* GetCollidedObject() const;
+	bool GetCollision() const;
 	bool GetPickingDetection() const;
 	BoundingOrientedBox GetOOBB() const;
 
+	void SetStatic(bool staticObject);
 	void SetMesh(const std::shared_ptr<CMesh>& mesh);
 	DWORD SetColor(const DWORD color);
 	void SetParent(CGameObject& parent);
@@ -36,6 +38,7 @@ public:
 	void SetRotationSpeed(const float rotationSpeed);
 	void SetMoveSpeed(const float moveSpeed);
 	void SetCollidedObject(CGameObject* gameObject);
+	void SetCollision(bool collisionObject);
 	void SetPickingDetection(const bool detection);
 	void SetOOBB();
 
@@ -56,6 +59,7 @@ public:
 
 protected:
 	bool m_active;
+	bool m_static;
 
 	std::shared_ptr<CMesh> m_mesh;
 	DWORD m_color;
@@ -72,6 +76,7 @@ protected:
 	float m_moveSpeed;
 
 	CGameObject* m_collidedObject;
+	bool m_collision;
 	bool m_pickingDetection;
 	BoundingOrientedBox m_OOBB;
 };

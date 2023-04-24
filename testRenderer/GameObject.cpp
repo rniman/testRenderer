@@ -4,6 +4,7 @@
 
 CGameObject::CGameObject()
 	: m_active{ true }
+	, m_static{ false }
 	, m_mesh{ nullptr }
 	, m_color{ RGB(255, 0, 0) }
 	, m_parent{ nullptr }
@@ -14,6 +15,7 @@ CGameObject::CGameObject()
 	, m_moveSpeed{ 0.0f }
 	, m_rotationSpeed{ 0.0f }
 	, m_collidedObject{ nullptr }
+	, m_collision{ true }
 	, m_pickingDetection{ true }
 	, m_OOBB{ BoundingOrientedBox() }
 {
@@ -32,6 +34,7 @@ CGameObject::~CGameObject()
 CGameObject::CGameObject(CGameObject&& other) noexcept
 {
 	m_active = other.m_active;
+	m_static = other.m_static;
 	m_mesh = std::move(other.m_mesh);
 	m_color = other.m_color;
 	m_parent = other.m_parent;
@@ -43,6 +46,7 @@ CGameObject::CGameObject(CGameObject&& other) noexcept
 	m_rotationSpeed = other.m_rotationSpeed;
 	m_pickingDetection = other.m_pickingDetection;
 	m_collidedObject = other.m_collidedObject;
+	m_collision = other.m_collision;
 	m_OOBB = other.m_OOBB;
 
 	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&other.m_worldMatrix));
@@ -57,7 +61,13 @@ CGameObject& CGameObject::operator=(CGameObject&& other) noexcept
 		return *this;
 	}
 
+	delete m_child;
+	m_child = nullptr;
+	delete m_sibling;
+	m_sibling = nullptr;
+
 	m_active = other.m_active;
+	m_static = other.m_static;
 	m_mesh = std::move(other.m_mesh);
 	m_color = other.m_color;
 	m_parent = other.m_parent;
@@ -68,6 +78,13 @@ CGameObject& CGameObject::operator=(CGameObject&& other) noexcept
 	m_moveSpeed = other.m_moveSpeed;
 	m_rotationSpeed = other.m_rotationSpeed;
 	m_pickingDetection = other.m_pickingDetection;
+	m_collidedObject = other.m_collidedObject;
+	m_collision = other.m_collision;
+	m_OOBB = other.m_OOBB;
+
+	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&other.m_worldMatrix));
+
+	other.reset();
 
 	return *this;
 }
@@ -127,9 +144,19 @@ CGameObject* CGameObject::GetCollidedObject() const
 	return m_collidedObject;
 }
 
+bool CGameObject::GetCollision() const
+{
+	return m_collision;
+}
+
 BoundingOrientedBox CGameObject::GetOOBB() const
 {
 	return m_OOBB;
+}
+
+void CGameObject::SetStatic(bool staticObject)
+{
+	m_static = staticObject;
 }
 
 void CGameObject::SetMesh(const std::shared_ptr<CMesh>& mesh)
@@ -192,6 +219,11 @@ void CGameObject::SetMoveSpeed(const float moveSpeed)
 void CGameObject::SetCollidedObject(CGameObject* gameObject)
 {
 	m_collidedObject = gameObject;
+}
+
+void CGameObject::SetCollision(bool collisionObject)
+{
+	m_collision = collisionObject;
 }
 
 void CGameObject::SetPickingDetection(const bool detection)
@@ -261,6 +293,11 @@ void CGameObject::Move(const float deltaTime)
 
 void CGameObject::Update(const float deltaTime)
 {
+	if (m_static)
+	{
+		return;
+	}
+
 	Rotate(deltaTime);
 	Move(deltaTime);
 	if (m_parent)
@@ -279,7 +316,6 @@ void CGameObject::Update(const float deltaTime)
 		m_child->Update(deltaTime);
 	}
 
-	//충돌 처리
 }
 
 void CGameObject::Collide(const float deltaTime)
@@ -306,6 +342,7 @@ void CGameObject::Render(HDC hDCFrameBuffer)
 void CGameObject::reset()
 {
 	m_active = true;
+	m_static = false;
 	m_mesh = nullptr;
 	m_color = RGB(255, 0, 0);
 	m_parent = nullptr;
@@ -313,11 +350,14 @@ void CGameObject::reset()
 	m_sibling = nullptr;
 	m_position = { 0.0f, 0.0f, 0.0f };
 	m_totalRotation = { 0.0f, 0.0f, 0.0f };
-	m_moveSpeed = 0.0f;
 	m_rotationSpeed = 0.0f;
+	m_moveSpeed = 0.0f;
 	m_collidedObject = nullptr;
+	m_collision = true;
 	m_pickingDetection = true;
 	m_OOBB = BoundingOrientedBox();
+
+	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixIdentity());
 }
 
 void CGameObject::SetAllColor(CGameObject* gameObject, DWORD color)

@@ -24,26 +24,62 @@ CPlayer* CScene::GetPlayer() const
 
 void CScene::CreateScene()
 {
-	m_gameObjects.reserve(10);
+	m_gameObjects.reserve(100);
 
 	std::shared_ptr<CMesh> floorMesh = std::make_shared<CFloor>(200.0f, 0.0f, 200.0f, 20);
-
 	m_gameObjects.emplace_back(std::make_unique<CGameObject>());
 	m_gameObjects[0]->SetPickingDetection(false);
 	m_gameObjects[0]->SetMesh(floorMesh);
 	m_gameObjects[0]->SetColor(RGB(100, 100, 100));
 	m_gameObjects[0]->SetPosition(0.0f, 0.0f, 0.0f);
+	m_gameObjects[0]->SetStatic(true);
+	m_gameObjects[0]->SetOOBB();
+	m_gameObjects[0]->SetCollision(false);
 
 	std::shared_ptr<CMesh> obstacleMesh = std::make_shared<CCube>(10.0f, 10.0f, 10.0f);
-	m_gameObjects.emplace_back(std::make_unique<CObstacleObject>());
-	m_gameObjects[1]->SetMesh(obstacleMesh);
-	m_gameObjects[1]->SetColor(RGB(0, 255, 255));
-	m_gameObjects[1]->SetPosition(15.0f, 5.0f, 15.0f);
-	
-	m_gameObjects.emplace_back(std::make_unique<CObstacleObject>());
-	m_gameObjects[2]->SetMesh(obstacleMesh);
-	m_gameObjects[2]->SetColor(RGB(0, 255, 255));
-	m_gameObjects[2]->SetPosition(5.0f, 5.0f, 15.0f);
+	for (int i = 1; i < 21; ++i)
+	{
+		m_gameObjects.emplace_back(std::make_unique<CGameObject>());
+		m_gameObjects[i]->SetMesh(obstacleMesh);
+		m_gameObjects[i]->SetColor(RGB(50, 50, 50));
+		m_gameObjects[i]->SetPosition(-100.0f + 10.0f * (i - 1) + 5.0f, 5.0f, 105.0f);
+		m_gameObjects[i]->SetStatic(true);
+		m_gameObjects[i]->SetOOBB();
+		m_gameObjects[i]->SetPickingDetection(false);
+	}
+
+	for (int i = 21; i < 41; ++i)
+	{
+		m_gameObjects.emplace_back(std::make_unique<CGameObject>());
+		m_gameObjects[i]->SetMesh(obstacleMesh);
+		m_gameObjects[i]->SetColor(RGB(50, 50, 50));
+		m_gameObjects[i]->SetPosition(-100.0f + 10.0f * (i - 21) + 5.0f, 5.0f, -105.0f);
+		m_gameObjects[i]->SetStatic(true);
+		m_gameObjects[i]->SetOOBB();
+		m_gameObjects[i]->SetPickingDetection(false);
+	}
+
+	for (int i = 41; i < 61; ++i)
+	{
+		m_gameObjects.emplace_back(std::make_unique<CGameObject>());
+		m_gameObjects[i]->SetMesh(obstacleMesh);
+		m_gameObjects[i]->SetColor(RGB(50, 50, 50));
+		m_gameObjects[i]->SetPosition(105.0f, 5.0f, -100.0f + 10.0f * (i - 41) + 5.0f);
+		m_gameObjects[i]->SetStatic(true);
+		m_gameObjects[i]->SetOOBB();
+		m_gameObjects[i]->SetPickingDetection(false);
+	}
+
+	for (int i = 61; i < 81; ++i)
+	{
+		m_gameObjects.emplace_back(std::make_unique<CGameObject>());
+		m_gameObjects[i]->SetMesh(obstacleMesh);
+		m_gameObjects[i]->SetColor(RGB(50, 50, 50));
+		m_gameObjects[i]->SetPosition(-105.0f, 5.0f, -100.0f + 10.0f * (i - 61) + 5.0f);
+		m_gameObjects[i]->SetStatic(true);
+		m_gameObjects[i]->SetOOBB();
+		m_gameObjects[i]->SetPickingDetection(false);
+	}		
 
 	//카메라
 	CCamera newCamera;
@@ -59,17 +95,17 @@ void CScene::CreateScene()
 	m_pPlayer->SetColor(RGB(0, 120, 0));
 
 	//적 탱크 
-	m_gameObjects.emplace_back(std::make_unique<CEnemyTank>());
-	m_gameObjects[3]->SetMesh(tankMesh);
-	m_gameObjects[3]->SetColor(RGB(255, 0, 255));
-	m_gameObjects[3]->SetPosition(0.0f, 0.0f, 20.0f);
-	m_gameObjects[3]->AddRotationAngle(0.0f, 180.0f, 0.0f);
+	//m_gameObjects.emplace_back(std::make_unique<CEnemyTank>());
+	//m_gameObjects[3]->SetMesh(tankMesh);
+	//m_gameObjects[3]->SetColor(RGB(255, 0, 255));
+	//m_gameObjects[3]->SetPosition(0.0f, 0.0f, 20.0f);
+	//m_gameObjects[3]->AddRotationAngle(0.0f, 180.0f, 0.0f);
 
 	//터렛
 	std::shared_ptr<CMesh> turretMesh = std::make_shared<CCube>(3.0f, 4.0f, 5.0f);
-	m_gameObjects[3]->GetChild()->SetMesh(turretMesh);
-	m_gameObjects[3]->GetChild()->SetColor(RGB(255, 0, 255));
-	m_gameObjects[3]->GetChild()->SetPosition(0.0f, 3.0f, -1.0f);
+	//m_gameObjects[3]->GetChild()->SetMesh(turretMesh);
+	//m_gameObjects[3]->GetChild()->SetColor(RGB(255, 0, 255));
+	//m_gameObjects[3]->GetChild()->SetPosition(0.0f, 3.0f, -1.0f);
 
 	m_pPlayer->GetChild()->SetMesh(turretMesh);
 	m_pPlayer->GetChild()->SetColor(RGB(0, 150, 50));
@@ -77,9 +113,9 @@ void CScene::CreateScene()
 
 	//대포
 	std::shared_ptr<CMesh> gunMesh = std::make_shared<CStick>(1.0f, 1.0f, 7.0f);
-	m_gameObjects[3]->GetChild()->GetChild()->SetMesh(gunMesh);
-	m_gameObjects[3]->GetChild()->GetChild()->SetColor(RGB(255, 0, 255));
-	m_gameObjects[3]->GetChild()->GetChild()->SetPosition(0.0f, 1.0f, 2.5f);
+	//m_gameObjects[3]->GetChild()->GetChild()->SetMesh(gunMesh);
+	//m_gameObjects[3]->GetChild()->GetChild()->SetColor(RGB(255, 0, 255));
+	//m_gameObjects[3]->GetChild()->GetChild()->SetPosition(0.0f, 1.0f, 2.5f);
 
 	m_pPlayer->GetChild()->GetChild()->SetMesh(gunMesh);
 	m_pPlayer->GetChild()->GetChild()->SetColor(RGB(100, 150, 50));
@@ -205,7 +241,7 @@ void CScene::CheckPlayerByObjectCollision(const float deltaTime)
 		}
 
 		//임시로 설정
-		if (!gameObject->GetPickingDetection())
+		if (!gameObject->GetCollision())
 		{
 			continue;
 		}
@@ -259,7 +295,7 @@ void CScene::CheckBulletByObjectCollision(const float deltaTime)
 				}
 			}
 			
-			if (!gameObject->GetPickingDetection())
+			if (!gameObject->GetPickingDetection() || !gameObject->GetCollision())
 			{
 				//총만 비활성화
 				bullet.DeleteBullet();

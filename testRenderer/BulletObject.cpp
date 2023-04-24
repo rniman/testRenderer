@@ -76,7 +76,6 @@ void CBulletObject::Update(const float deltaTime)
 		return;
 	}
 
-	
 	AddRotationAngle(0.0f, 0.0f, -deltaTime);
 	
 	Rotate(deltaTime);

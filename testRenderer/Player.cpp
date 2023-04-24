@@ -9,8 +9,8 @@ CPlayer::CPlayer()
 	, m_camera()
 	, m_bMoveForce{ false }
 	, m_moveDirection{ 0.0f, 0.0f, 0.0f }
-	, m_acceleration{ 25.0f }
-	, m_friction{ 15.0f }
+	, m_acceleration{ 60.0f }
+	, m_friction{ 45.0f }
 	, m_cameraRotation{ 0.0f, 0.0f, 0.0f }
 {
 	m_rotationSpeed = 5.0f;
@@ -25,8 +25,8 @@ CPlayer::CPlayer(const CCamera& camera)
 	, m_camera(camera)
 	, m_bMoveForce{ false }
 	, m_moveDirection{ 0.0f, 0.0f, 0.0f }
-	, m_acceleration{ 25.0f }
-	, m_friction{ 15.0f }
+	, m_acceleration{ 60.0f }
+	, m_friction{ 45.0f }
 	, m_cameraRotation{ 0.0f, 0.0f, 0.0f }
 {
 	m_rotationSpeed = 5.0f;
@@ -126,12 +126,12 @@ void CPlayer::Move(const float deltaTime)
 {
 	if (m_bMoveForce)
 	{
-		if (m_moveSpeed < 10.0f)
+		if (m_moveSpeed < 15.0f)
 		{
 			m_moveSpeed += deltaTime * (m_acceleration - m_friction);
-			if (m_moveSpeed > 10.0f)
+			if (m_moveSpeed > 15.0f)
 			{
-				m_moveSpeed = 10.0f;
+				m_moveSpeed = 15.0f;
 			}
 		}
 	}
@@ -139,7 +139,7 @@ void CPlayer::Move(const float deltaTime)
 	{
 		if (m_moveSpeed > 0.0f)
 		{
-			m_moveSpeed -= deltaTime * m_friction * 2;
+			m_moveSpeed -= deltaTime * m_friction;
 			if (m_moveSpeed < 0.0f)
 			{
 				m_moveSpeed = 0.0f;
@@ -327,7 +327,7 @@ void CTankPlayer::FireBullet()
 		XMStoreFloat3A(&fireDirection, XMVector3TransformNormal(XMLoadFloat3A(&fireDirection), XMLoadFloat4x4A(&gunMatrix)));
 
 		bullet.SetForward(fireDirection);
-		m_coolTime = 2.0f;
+		m_coolTime = 1.0f;
 		break;
 	}
 }
@@ -375,12 +375,12 @@ void CTankPlayer::Move(const float deltaTime)
 {
 	if (m_bMoveForce)
 	{
-		if (m_moveSpeed < 10.0f)
+		if (m_moveSpeed < 15.0f)
 		{
 			m_moveSpeed += deltaTime * (m_acceleration - m_friction);
-			if (m_moveSpeed > 10.0f)
+			if (m_moveSpeed > 15.0f)
 			{
-				m_moveSpeed = 10.0f;
+				m_moveSpeed = 15.0f;
 			}
 		}
 	}
@@ -388,7 +388,7 @@ void CTankPlayer::Move(const float deltaTime)
 	{
 		if (m_moveSpeed > 0.0f)
 		{
-			m_moveSpeed -= deltaTime * m_friction * 2;
+			m_moveSpeed -= deltaTime * m_friction;
 			if (m_moveSpeed < 0.0f)
 			{
 				m_moveSpeed = 0.0f;
@@ -427,9 +427,6 @@ void CTankPlayer::Update(const float deltaTime)
 			
 			XMFLOAT3A rotateDirection;
 			XMStoreFloat3A(&rotateDirection,XMVector3Normalize(XMVector3Cross(p0, p1)));
-
-			//XMFLOAT3A q;
-			//XMStoreFloat3A(&q, axis);
 			
 			XMVECTOR angle;
 			angle = XMVector3AngleBetweenVectors(p0, p1);

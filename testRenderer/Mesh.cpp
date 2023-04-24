@@ -188,7 +188,7 @@ CFloor::CFloor(const float width, const float height, const float depth, const u
 		}
 	}
 
-	m_OOBB = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(width / 2, height / 2, depth / 2), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+	m_OOBB = BoundingOrientedBox(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(width / 2, 0, depth / 2), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
 CFloor::~CFloor()
@@ -222,21 +222,21 @@ void CFloor::Render(HDC hDCFrameBuffer)
 				Draw2DLine(hDCFrameBuffer, prevProject, curProject);
 			}
 
-			pPrevProject = prevProject;
+			//pPrevProject = prevProject;
 			prevProject = curProject;
 
-			bPPrevProject = bPrevProject;
+			//bPPrevProject = bPrevProject;
 			bPrevProject = bCurProject;
 		}
 
-		//if (bFirstProject || bPrevProject)
-		//{
-		//	Draw2DLine(hDCFrameBuffer, prevProject, firstProject);
-		//	if (bFirstProject || bPPrevProject)
-		//	{
-		//		Draw2DLine(hDCFrameBuffer, pPrevProject, firstProject);
-		//	}
-		//}
+		if (bFirstProject || bPrevProject)
+		{
+			Draw2DLine(hDCFrameBuffer, prevProject, firstProject);
+			//if (bFirstProject || bPPrevProject)
+			//{
+			//	Draw2DLine(hDCFrameBuffer, pPrevProject, firstProject);
+			//}
+		}
 	}
 }
 

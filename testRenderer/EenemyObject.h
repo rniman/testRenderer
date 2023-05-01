@@ -36,13 +36,15 @@ public:
 
 	CGameObject* GetTurret() const;
 	CGameObject* GetGun() const;
+	std::vector<CBulletObject>& GetBullets();
 
 	virtual void AddRotationAngle(const float pitch, const float yaw, const float roll) override;
 	virtual void AddRotationAngle(const XMFLOAT3A& rotate) override;
+	void FireBullet();
 
 	virtual void Rotate(const float deltaTime) override;
 	virtual void Move(const float deltaTime) override;
-	virtual void Collide(const float deltaTima) override;
+	virtual void Collide(const float deltaTime) override;
 	virtual void Update(const float deltaTime) override;
 	virtual void Render(HDC hDCFrameBuffer) override;
 

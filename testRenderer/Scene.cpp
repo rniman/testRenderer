@@ -45,7 +45,6 @@ void CScene::CreateScene()
 		m_gameObjects[i]->SetPosition(-100.0f + 10.0f * (i - 1) + 5.0f, 5.0f, 105.0f);
 		m_gameObjects[i]->SetStatic(true);
 		m_gameObjects[i]->SetOOBB();
-		m_gameObjects[i]->SetPickingDetection(false);
 	}
 
 	for (int i = 21; i < 41; ++i)
@@ -56,7 +55,6 @@ void CScene::CreateScene()
 		m_gameObjects[i]->SetPosition(-100.0f + 10.0f * (i - 21) + 5.0f, 5.0f, -105.0f);
 		m_gameObjects[i]->SetStatic(true);
 		m_gameObjects[i]->SetOOBB();
-		m_gameObjects[i]->SetPickingDetection(false);
 	}
 
 	for (int i = 41; i < 61; ++i)
@@ -67,7 +65,6 @@ void CScene::CreateScene()
 		m_gameObjects[i]->SetPosition(105.0f, 5.0f, -100.0f + 10.0f * (i - 41) + 5.0f);
 		m_gameObjects[i]->SetStatic(true);
 		m_gameObjects[i]->SetOOBB();
-		m_gameObjects[i]->SetPickingDetection(false);
 	}
 
 	for (int i = 61; i < 81; ++i)
@@ -78,7 +75,6 @@ void CScene::CreateScene()
 		m_gameObjects[i]->SetPosition(-105.0f, 5.0f, -100.0f + 10.0f * (i - 61) + 5.0f);
 		m_gameObjects[i]->SetStatic(true);
 		m_gameObjects[i]->SetOOBB();
-		m_gameObjects[i]->SetPickingDetection(false);
 	}		
 
 	//카메라
@@ -95,17 +91,27 @@ void CScene::CreateScene()
 	m_pPlayer->SetColor(RGB(0, 120, 0));
 
 	//적 탱크 
-	//m_gameObjects.emplace_back(std::make_unique<CEnemyTank>());
-	//m_gameObjects[3]->SetMesh(tankMesh);
-	//m_gameObjects[3]->SetColor(RGB(255, 0, 255));
-	//m_gameObjects[3]->SetPosition(0.0f, 0.0f, 20.0f);
-	//m_gameObjects[3]->AddRotationAngle(0.0f, 180.0f, 0.0f);
+	m_gameObjects.emplace_back(std::make_unique<CEnemyTank>());
+	m_gameObjects[81]->SetMesh(tankMesh);
+	m_gameObjects[81]->SetColor(RGB(255, 0, 255));
+	m_gameObjects[81]->SetPosition(-90.0f, 1.0f, 90.0f);
+	m_gameObjects[81]->AddRotationAngle(0.0f, 180.0f, 0.0f);
+
+	m_gameObjects.emplace_back(std::make_unique<CEnemyTank>());
+	m_gameObjects[82]->SetMesh(tankMesh);
+	m_gameObjects[82]->SetColor(RGB(255, 0, 255));
+	m_gameObjects[82]->SetPosition(90.0f, 1.0f, 90.0f);
+	m_gameObjects[82]->AddRotationAngle(0.0f, 180.0f, 0.0f);
 
 	//터렛
 	std::shared_ptr<CMesh> turretMesh = std::make_shared<CCube>(3.0f, 4.0f, 5.0f);
-	//m_gameObjects[3]->GetChild()->SetMesh(turretMesh);
-	//m_gameObjects[3]->GetChild()->SetColor(RGB(255, 0, 255));
-	//m_gameObjects[3]->GetChild()->SetPosition(0.0f, 3.0f, -1.0f);
+	m_gameObjects[81]->GetChild()->SetMesh(turretMesh);
+	m_gameObjects[81]->GetChild()->SetColor(RGB(255, 0, 255));
+	m_gameObjects[81]->GetChild()->SetPosition(0.0f, 3.0f, -1.0f);
+
+	m_gameObjects[82]->GetChild()->SetMesh(turretMesh);
+	m_gameObjects[82]->GetChild()->SetColor(RGB(255, 0, 255));
+	m_gameObjects[82]->GetChild()->SetPosition(0.0f, 3.0f, -1.0f);
 
 	m_pPlayer->GetChild()->SetMesh(turretMesh);
 	m_pPlayer->GetChild()->SetColor(RGB(0, 150, 50));
@@ -113,9 +119,13 @@ void CScene::CreateScene()
 
 	//대포
 	std::shared_ptr<CMesh> gunMesh = std::make_shared<CStick>(1.0f, 1.0f, 7.0f);
-	//m_gameObjects[3]->GetChild()->GetChild()->SetMesh(gunMesh);
-	//m_gameObjects[3]->GetChild()->GetChild()->SetColor(RGB(255, 0, 255));
-	//m_gameObjects[3]->GetChild()->GetChild()->SetPosition(0.0f, 1.0f, 2.5f);
+	m_gameObjects[81]->GetChild()->GetChild()->SetMesh(gunMesh);
+	m_gameObjects[81]->GetChild()->GetChild()->SetColor(RGB(255, 0, 255));
+	m_gameObjects[81]->GetChild()->GetChild()->SetPosition(0.0f, 1.0f, 2.5f);
+
+	m_gameObjects[82]->GetChild()->GetChild()->SetMesh(gunMesh);
+	m_gameObjects[82]->GetChild()->GetChild()->SetColor(RGB(255, 0, 255));
+	m_gameObjects[82]->GetChild()->GetChild()->SetPosition(0.0f, 1.0f, 2.5f);
 
 	m_pPlayer->GetChild()->GetChild()->SetMesh(gunMesh);
 	m_pPlayer->GetChild()->GetChild()->SetColor(RGB(100, 150, 50));
@@ -219,6 +229,19 @@ void CScene::Render(HDC hDCFrameBuffer)
 		{
 			gameObject->Render(hDCFrameBuffer);
 		}
+		else if (dynamic_cast<CEnemyTank*>(gameObject.get()))
+		{
+			for (CBulletObject& bullet : static_cast<CEnemyTank*>(gameObject.get())->GetBullets())
+			{
+				if (!bullet.GetActive())
+				{
+					continue;
+				}
+
+				bullet.Render(hDCFrameBuffer);
+			}
+		}
+
 	}
 }
 
@@ -306,6 +329,29 @@ void CScene::CheckBulletByObjectCollision(const float deltaTime)
 			bullet.DeleteBullet();
 			gameObject->SetCollidedObject(&bullet);
 			gameObject->Collide(deltaTime);
+		}
+	}
+
+	for (CBulletObject& bullet : static_cast<CEnemyTank*>(m_gameObjects[81].get())->GetBullets())
+	{
+		if (!bullet.GetActive())
+		{
+			continue;
+		}
+
+		for (int i = 0; i < 81; ++i)
+		{	
+			if (!m_gameObjects[i]->GetActive())
+			{
+				continue;
+			}
+
+			if (!bullet.GetOOBB().Intersects(m_gameObjects[i]->GetOOBB()))
+			{
+				continue;
+			}
+
+			bullet.DeleteBullet();
 		}
 	}
 }

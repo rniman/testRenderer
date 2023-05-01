@@ -16,7 +16,7 @@ CGameObject::CGameObject()
 	, m_rotationSpeed{ 0.0f }
 	, m_collidedObject{ nullptr }
 	, m_collision{ true }
-	, m_pickingDetection{ true }
+	, m_pickingDetection{ false }
 	, m_OOBB{ BoundingOrientedBox() }
 {
 	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixIdentity());

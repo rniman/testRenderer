@@ -64,9 +64,7 @@ public:
 
 	void Move(const XMFLOAT3A& shift);
 	void Rotate(const float pitch, const float yaw, const float roll);
-
 	void Update(const float deltaTime);
-	//void Rotate(const XMFLOAT3A& axies, const float angle);
 private:
 	XMFLOAT3A m_position;
 	XMFLOAT3A m_oldPosition;

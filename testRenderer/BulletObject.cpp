@@ -12,6 +12,8 @@ CBulletObject::CBulletObject()
 
 	m_rotationSpeed = 360.0f * 3;
 	m_moveSpeed = 100.0f;
+
+	m_pickingDetection = false;
 }
 
 CBulletObject::~CBulletObject()

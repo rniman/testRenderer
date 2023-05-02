@@ -245,6 +245,32 @@ void CGameObject::AddRotationAngle(const float pitch, const float yaw, const flo
 void CGameObject::AddRotationAngle(const XMFLOAT3A& rotate)
 {
 	XMStoreFloat3A(&m_totalRotation, XMLoadFloat3A(&m_totalRotation) + XMLoadFloat3(&rotate));
+	if (m_totalRotation.x > 180.0f)
+	{
+		m_totalRotation.x = -360.0f + m_totalRotation.x;
+	}
+	else if (m_totalRotation.x < -180.0f)
+	{
+		m_totalRotation.x = 360.0f + m_totalRotation.x;
+	}
+
+	if (m_totalRotation.y > 180.0f)
+	{
+		m_totalRotation.y = -360.0f + m_totalRotation.y;
+	}
+	else if (m_totalRotation.y < -180.0f)
+	{
+		m_totalRotation.y = 360.0f + m_totalRotation.y;
+	}
+
+	if (m_totalRotation.z > 180.0f)
+	{
+		m_totalRotation.z = -360.0f + m_totalRotation.z;
+	}
+	else if (m_totalRotation.z< -180.0f)
+	{
+		m_totalRotation.z = 360.0f + m_totalRotation.z;
+	}
 }
 
 bool CGameObject::CheckPicking(const CGameObject* gameObject, const XMFLOAT3A& pickPosition, const XMFLOAT4X4A& cameraMatrix, float& distance)
@@ -279,7 +305,7 @@ bool CGameObject::CheckPicking(const CGameObject* gameObject, const XMFLOAT3A& p
 
 void CGameObject::Rotate(const float deltaTime)
 {
-	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(m_rotationSpeed)));
+	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(1)));
 }
 
 void CGameObject::Move(const float deltaTime)

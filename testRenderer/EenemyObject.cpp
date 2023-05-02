@@ -63,8 +63,10 @@ void CEenemyObject::Render(HDC hDCFrameBuffer)
 
 CEnemyTank::CEnemyTank()
 	: CEenemyObject()
+	, m_look{}
 	, m_target{ nullptr }
 	, m_targetDistance{}
+	, m_moveDirection{}
 	, m_searchTime{}
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
@@ -159,14 +161,122 @@ void CEnemyTank::FireBullet()
 	}
 }
 
+void CEnemyTank::FindTarget()
+{
+	if (!m_target)
+	{
+		return;
+	}
+
+	XMVECTOR position = XMLoadFloat3A(&m_position);
+	
+	XMFLOAT3A targetPosition = m_target->GetPosition();
+	XMVECTOR targetPos = XMLoadFloat3A(&targetPosition);
+
+	XMVECTOR target = targetPos - position;
+	XMVECTOR distange = XMVector3Length(target);
+	XMVECTOR targetDirection = XMVector3Normalize(target);
+
+	m_targetDistance = XMVectorGetX(distange);
+	XMStoreFloat3A(&m_moveDirection, targetDirection);
+
+	//m_remainRotation = 0.0f;
+	//m_remainTurretRotation = 0.0f;
+
+	if (m_targetDistance >= 28.0f)
+	{
+		XMVECTOR look = XMLoadFloat3A(&m_look);
+		XMVECTOR direction = XMLoadFloat3A(&m_moveDirection);
+		float angle = XMConvertToDegrees(XMVectorGetX(XMVector3AngleBetweenNormals(look, direction)));
+		if (XMVectorGetY(XMVector3Cross(look, direction)) < 0.0f)
+		{
+			angle = -angle;
+		}
+		m_remainRotation = angle;
+		m_remainTurretRotation = -m_turret->GetTotalRotation().y;
+	}
+	else
+	{
+		XMFLOAT3A turretRotation = m_turret->GetTotalRotation();
+		XMMATRIX rotate = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&turretRotation) * XMConvertToRadians(1.0f));
+		
+		XMVECTOR look = XMVector3TransformNormal(XMLoadFloat3A(&m_look), rotate);
+		XMVECTOR direction = XMLoadFloat3A(&m_moveDirection);
+
+		float angle = XMConvertToDegrees(XMVectorGetX(XMVector3AngleBetweenNormals(look, direction)));
+		if (XMVectorGetY(XMVector3Cross(look, direction)) < 0.0f)
+		{
+			angle = -angle;
+		}
+		m_remainTurretRotation = angle;
+	}
+}
+
+void CEnemyTank::RotateToTarget(const float deltaTime)
+{
+	if (m_remainRotation)
+	{
+		if (abs(m_remainRotation) <= m_rotationSpeed * deltaTime)
+		{
+			m_totalRotation.y += m_remainRotation;
+			m_remainRotation = 0.0f;
+		}
+		else
+		{
+			if (m_remainRotation >= 0.0f)
+			{
+				m_totalRotation.y += m_rotationSpeed * deltaTime;
+				m_remainRotation -= m_rotationSpeed * deltaTime;
+			}
+			else
+			{
+				m_totalRotation.y -= m_rotationSpeed * deltaTime;
+				m_remainRotation += m_rotationSpeed * deltaTime;
+			}
+		}
+	}
+
+	if (m_remainTurretRotation)
+	{
+		if (abs(m_remainTurretRotation) <= m_rotationSpeed * deltaTime)
+		{
+			m_turret->AddRotationAngle(0.0f, m_remainTurretRotation, 0.0f);
+			m_remainTurretRotation = 0.0f;
+		}
+		else
+		{
+			if (m_remainTurretRotation >= 0.0f)
+			{
+				m_turret->AddRotationAngle(0.0f, m_rotationSpeed * deltaTime, 0.0f);
+				m_remainTurretRotation -= m_rotationSpeed * deltaTime;
+			}
+			else
+			{
+				m_turret->AddRotationAngle(0.0f, -m_rotationSpeed * deltaTime, 0.0f);
+				m_remainTurretRotation += m_rotationSpeed * deltaTime;
+			}
+		}
+	}
+}
+
 void CEnemyTank::Rotate(const float deltaTime)
 {
 	XMStoreFloat4x4A(&m_worldMatrix, XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(1.0f)));
+
+	m_look.x = m_worldMatrix._31;
+	m_look.y = m_worldMatrix._32;
+	m_look.z = m_worldMatrix._33;
+
+	XMStoreFloat3A(&m_look, XMVector3Normalize(XMLoadFloat3A(&m_look)));
 }
 
 void CEnemyTank::Move(const float deltaTime)
 {
-	CEenemyObject::Move(deltaTime);
+	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
+
+	m_position.x = m_worldMatrix._41;
+	m_position.y = m_worldMatrix._42;
+	m_position.z = m_worldMatrix._43;
 }
 
 void CEnemyTank::Collide(const float deltaTime)
@@ -193,6 +303,8 @@ void CEnemyTank::Update(const float deltaTime)
 		return;
 	}
 
+	RotateToTarget(deltaTime);
+
 	Rotate(deltaTime);
 	Move(deltaTime);
 	if (m_parent)
@@ -215,7 +327,7 @@ void CEnemyTank::Update(const float deltaTime)
 	{
 		m_coolTime -= deltaTime;
 	}
-	FireBullet();
+	//FireBullet();
 
 	for (CBulletObject& bullet : m_bullet)
 	{
@@ -225,6 +337,14 @@ void CEnemyTank::Update(const float deltaTime)
 		}
 
 		bullet.Update(deltaTime);
+	}
+
+	m_searchTime -= deltaTime;
+	if (m_searchTime <= 0.0f)
+	{
+		m_searchTime = 2.0f;
+		//À§Ä¡ Å½»ö
+		FindTarget();
 	}
 }
 

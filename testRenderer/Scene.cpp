@@ -94,8 +94,8 @@ void CScene::CreateScene()
 	m_gameObjects.emplace_back(std::make_unique<CEnemyTank>());
 	m_gameObjects[81]->SetMesh(tankMesh);
 	m_gameObjects[81]->SetColor(RGB(255, 0, 255));
-	m_gameObjects[81]->SetPosition(-90.0f, 1.0f, 90.0f);
-	m_gameObjects[81]->AddRotationAngle(0.0f, 180.0f, 0.0f);
+	m_gameObjects[81]->SetPosition(20.0f, 1.0f, 20.0f);
+	m_gameObjects[81]->AddRotationAngle(0.0f, 0.0f, 0.0f);
 	((CEnemyTank*)m_gameObjects[81].get())->SetTarget(m_pPlayer);
 
 	m_gameObjects.emplace_back(std::make_unique<CEnemyTank>());

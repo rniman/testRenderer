@@ -59,7 +59,9 @@ void CPlayer::SetInactiveMoveForce()
 
 void CPlayer::AddRotationAngle(const float pitch, const float yaw, const float roll)
 {
-	CGameObject::AddRotationAngle(pitch, yaw, roll);
+	//CGameObject::AddRotationAngle(pitch, yaw, roll);
+	XMFLOAT3A angle = {pitch, yaw, roll};
+	XMStoreFloat3A(&m_totalRotation, XMLoadFloat3A(&m_totalRotation) + XMLoadFloat3(&angle));
 }
 
 void CPlayer::AddCameraRotation(const float pitch, const float yaw, const float roll)

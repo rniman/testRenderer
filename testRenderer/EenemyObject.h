@@ -43,6 +43,8 @@ public:
 	virtual void AddRotationAngle(const float pitch, const float yaw, const float roll) override;
 	virtual void AddRotationAngle(const XMFLOAT3A& rotate) override;
 	void FireBullet();
+	void FindTarget();
+	void RotateToTarget(const float deltaTime);
 
 	virtual void Rotate(const float deltaTime) override;
 	virtual void Move(const float deltaTime) override;
@@ -51,14 +53,21 @@ public:
 	virtual void Render(HDC hDCFrameBuffer) override;
 
 private:
-	CGameObject* m_target;
+	XMFLOAT3A m_look;
 
-	CGameObject* m_turret;
-	CGameObject* m_gun;
+	XMFLOAT3A m_oldPosition;
+	XMFLOAT3A m_oldTotalRotation{ 0.0f, 0.0f,0.0f };
+	float m_elipsedRotation = 0.0f;
+	float m_remainRotation = 0.0f;
+	float m_remainTurretRotation = 0.0f;
 
 	float m_targetDistance;
-
+	XMFLOAT3A m_moveDirection;
 	float m_searchTime;
+
+	CGameObject* m_target;
+	CGameObject* m_turret;
+	CGameObject* m_gun;
 
 	std::vector<CBulletObject> m_bullet;
 	float m_coolTime;

@@ -5,6 +5,7 @@ CEenemyObject::CEenemyObject()
 	: CGameObject()	
 	, m_hp{ 0 }
 {
+	m_pickingDetection = true;
 }
 
 CEenemyObject::~CEenemyObject()
@@ -62,6 +63,9 @@ void CEenemyObject::Render(HDC hDCFrameBuffer)
 
 CEnemyTank::CEnemyTank()
 	: CEenemyObject()
+	, m_target{ nullptr }
+	, m_targetDistance{}
+	, m_searchTime{}
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
 {
@@ -106,6 +110,11 @@ CGameObject* CEnemyTank::GetGun() const
 std::vector<CBulletObject>& CEnemyTank::GetBullets()
 {
 	return m_bullet;
+}
+
+void CEnemyTank::SetTarget(CGameObject* target)
+{
+	m_target = target;
 }
 
 void CEnemyTank::AddRotationAngle(const float pitch, const float yaw, const float roll)
@@ -174,14 +183,39 @@ void CEnemyTank::Collide(const float deltaTime)
 
 void CEnemyTank::Update(const float deltaTime)
 {
-	CEenemyObject::Update(deltaTime);
+	if (m_hp <= 0)
+	{
+		return;
+	}
+
+	if (m_static)
+	{
+		return;
+	}
+
+	Rotate(deltaTime);
+	Move(deltaTime);
+	if (m_parent)
+	{
+		XMFLOAT4X4A parentWorld = m_parent->GetWorldMatrix();
+		XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMLoadFloat4x4A(&parentWorld));
+	}
+	SetOOBB();
+
+	if (m_sibling)
+	{
+		m_sibling->Update(deltaTime);
+	}
+	if (m_child)
+	{
+		m_child->Update(deltaTime);
+	}
 	
 	if (m_coolTime > 0.0f)
 	{
 		m_coolTime -= deltaTime;
 	}
 	FireBullet();
-
 
 	for (CBulletObject& bullet : m_bullet)
 	{

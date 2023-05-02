@@ -38,6 +38,8 @@ public:
 	CGameObject* GetGun() const;
 	std::vector<CBulletObject>& GetBullets();
 
+	void SetTarget(CGameObject* target);
+
 	virtual void AddRotationAngle(const float pitch, const float yaw, const float roll) override;
 	virtual void AddRotationAngle(const XMFLOAT3A& rotate) override;
 	void FireBullet();
@@ -49,8 +51,14 @@ public:
 	virtual void Render(HDC hDCFrameBuffer) override;
 
 private:
+	CGameObject* m_target;
+
 	CGameObject* m_turret;
 	CGameObject* m_gun;
+
+	float m_targetDistance;
+
+	float m_searchTime;
 
 	std::vector<CBulletObject> m_bullet;
 	float m_coolTime;

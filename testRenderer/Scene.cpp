@@ -96,12 +96,14 @@ void CScene::CreateScene()
 	m_gameObjects[81]->SetColor(RGB(255, 0, 255));
 	m_gameObjects[81]->SetPosition(-90.0f, 1.0f, 90.0f);
 	m_gameObjects[81]->AddRotationAngle(0.0f, 180.0f, 0.0f);
+	((CEnemyTank*)m_gameObjects[81].get())->SetTarget(m_pPlayer);
 
 	m_gameObjects.emplace_back(std::make_unique<CEnemyTank>());
 	m_gameObjects[82]->SetMesh(tankMesh);
 	m_gameObjects[82]->SetColor(RGB(255, 0, 255));
 	m_gameObjects[82]->SetPosition(90.0f, 1.0f, 90.0f);
 	m_gameObjects[82]->AddRotationAngle(0.0f, 180.0f, 0.0f);
+	((CEnemyTank*)m_gameObjects[81].get())->SetTarget(m_pPlayer);
 
 	//≈Õ∑ø
 	std::shared_ptr<CMesh> turretMesh = std::make_shared<CCube>(3.0f, 4.0f, 5.0f);
@@ -352,6 +354,31 @@ void CScene::CheckBulletByObjectCollision(const float deltaTime)
 			}
 
 			bullet.DeleteBullet();
+			break;
+		}
+	}
+
+	for (CBulletObject& bullet : static_cast<CEnemyTank*>(m_gameObjects[82].get())->GetBullets())
+	{
+		if (!bullet.GetActive())
+		{
+			continue;
+		}
+
+		for (int i = 0; i < 81; ++i)
+		{
+			if (!m_gameObjects[i]->GetActive())
+			{
+				continue;
+			}
+
+			if (!bullet.GetOOBB().Intersects(m_gameObjects[i]->GetOOBB()))
+			{
+				continue;
+			}
+
+			bullet.DeleteBullet();
+			break;
 		}
 	}
 }

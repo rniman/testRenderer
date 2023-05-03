@@ -181,6 +181,11 @@ CGameObject* CScene::GetPickedObject(const int mx, const int my)
 
 void CScene::HandleInput(DWORD downKey)
 {
+	if (!m_pPlayer->GetActive())
+	{
+		return;
+	}
+
 	m_pPlayer->SetInactiveMoveForce();
 	if (downKey)
 	{
@@ -190,7 +195,10 @@ void CScene::HandleInput(DWORD downKey)
 
 void CScene::Update(const float deltaTime)
 {
-	m_pPlayer->Update(deltaTime);
+	if (m_pPlayer->GetActive())
+	{
+		m_pPlayer->Update(deltaTime);
+	}
 
 	for (const std::unique_ptr<CGameObject>& gameObject : m_gameObjects)
 	{
@@ -218,7 +226,26 @@ void CScene::Render(HDC hDCFrameBuffer)
 	CGraphicsPipeline::SetCameraProejectdMatrix(m_pPlayer->GetCamera().GetCameraProjectMatrix());
 	CGraphicsPipeline::SetViewport(m_pPlayer->GetCamera().GetViewport());
 	
-	m_pPlayer->Render(hDCFrameBuffer);
+	if (m_pPlayer->GetActive())
+	{
+		m_pPlayer->Render(hDCFrameBuffer);
+	}
+	else
+	{
+		RECT rect{ 0, 0, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT - 200 };
+		TCHAR gameOver[] = _T("GAME OVER");
+		TCHAR exit[] = _T("ESC key - EXIT");
+
+		HFONT newFont = CreateFont(100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		HFONT oldFont = (HFONT)SelectObject(hDCFrameBuffer, newFont);
+		SetTextColor(hDCFrameBuffer, RGB(255, 255, 255));
+		DrawText(hDCFrameBuffer, gameOver, _tcslen(gameOver), &rect, DT_CENTER |DT_SINGLELINE | DT_VCENTER);
+		rect.bottom = FRAMEBUFFER_HEIGHT;
+		DrawText(hDCFrameBuffer, exit, _tcslen(exit), &rect, DT_CENTER |DT_SINGLELINE | DT_VCENTER);
+
+		SelectObject(hDCFrameBuffer, oldFont);
+		DeleteObject(newFont);
+	}
 
 	for (const std::unique_ptr<CGameObject>& gameObject : m_gameObjects)
 	{
@@ -249,6 +276,11 @@ void CScene::Render(HDC hDCFrameBuffer)
 
 void CScene::CheckPlayerByObjectCollision(const float deltaTime)
 {
+	if (!m_pPlayer->GetActive())
+	{
+		return;
+	}
+
 	BoundingOrientedBox playerOOBB = m_pPlayer->GetOOBB();
 	m_pPlayer->SetCollidedObject(nullptr);
 
@@ -275,6 +307,8 @@ void CScene::CheckPlayerByObjectCollision(const float deltaTime)
 		{
 			gameObject->SetCollidedObject(m_pPlayer);
 			m_pPlayer->SetCollidedObject(gameObject.get());
+
+			gameObject->Collide(deltaTime);
 		}
 	}
 
@@ -341,6 +375,15 @@ void CScene::CheckBulletByObjectCollision(const float deltaTime)
 			continue;
 		}
 
+		CTankPlayer* player = dynamic_cast<CTankPlayer*>(m_pPlayer);
+		if (player->GetActive() && (bullet.GetOOBB().Intersects(player->GetOOBB()) || bullet.GetOOBB().Intersects(player->GetTurret()->GetOOBB()) || bullet.GetOOBB().Intersects(player->GetGun()->GetOOBB())))
+		{
+			bullet.DeleteBullet();
+			player->SetCollidedObject(&bullet);
+			player->Collide(deltaTime);
+			continue;
+		}		
+
 		for (int i = 0; i < 81; ++i)
 		{	
 			if (!m_gameObjects[i]->GetActive())
@@ -365,6 +408,15 @@ void CScene::CheckBulletByObjectCollision(const float deltaTime)
 			continue;
 		}
 
+		CTankPlayer* player = dynamic_cast<CTankPlayer*>(m_pPlayer);
+		if (player->GetActive() && (bullet.GetOOBB().Intersects(player->GetOOBB()) || bullet.GetOOBB().Intersects(player->GetTurret()->GetOOBB()) || bullet.GetOOBB().Intersects(player->GetGun()->GetOOBB())))
+		{
+			bullet.DeleteBullet();
+			player->SetCollidedObject(&bullet);
+			player->Collide(deltaTime);
+			continue;
+		}
+
 		for (int i = 0; i < 81; ++i)
 		{
 			if (!m_gameObjects[i]->GetActive())
@@ -383,3 +435,4 @@ void CScene::CheckBulletByObjectCollision(const float deltaTime)
 	}
 }
 
+ 

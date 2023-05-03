@@ -353,6 +353,16 @@ void CTankPlayer::HandleInput(DWORD direction)
 
 void CTankPlayer::Collide(const float deltaTime)
 {
+	if (dynamic_cast<CBulletObject*>(m_collidedObject))
+	{
+		m_hp -= static_cast<CBulletObject*>(m_collidedObject)->GetDamge();
+		if (m_hp <= 0)
+		{
+			m_active = false;
+		}
+		return;
+	}
+
 	m_moveSpeed = 0.0f;
 	m_position = m_oldPosition;
 	m_totalRotation = m_oldTotalRotation;
@@ -412,6 +422,11 @@ void CTankPlayer::Move(const float deltaTime)
 
 void CTankPlayer::Update(const float deltaTime)
 {
+	if (!m_active)
+	{
+		return;
+	}
+
 	Rotate(deltaTime);
 	Move(deltaTime);
 	SetOOBB();

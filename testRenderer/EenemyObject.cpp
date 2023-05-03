@@ -74,7 +74,7 @@ CEnemyTank::CEnemyTank()
 	m_hp = 100;
 
 	m_rotationSpeed = 90.0f;
-	m_moveSpeed = 0.0f;
+	m_moveSpeed = 5.0f;
 
 	m_turret = new CGameObject();
 	m_child = m_turret;
@@ -180,9 +180,6 @@ void CEnemyTank::FindTarget()
 	m_targetDistance = XMVectorGetX(distange);
 	XMStoreFloat3A(&m_moveDirection, targetDirection);
 
-	//m_remainRotation = 0.0f;
-	//m_remainTurretRotation = 0.0f;
-
 	if (m_targetDistance >= 28.0f)
 	{
 		XMVECTOR look = XMLoadFloat3A(&m_look);
@@ -214,6 +211,8 @@ void CEnemyTank::FindTarget()
 
 void CEnemyTank::RotateToTarget(const float deltaTime)
 {
+	m_oldTotalRotation = m_totalRotation;
+
 	if (m_remainRotation)
 	{
 		if (abs(m_remainRotation) <= m_rotationSpeed * deltaTime)
@@ -272,6 +271,13 @@ void CEnemyTank::Rotate(const float deltaTime)
 
 void CEnemyTank::Move(const float deltaTime)
 {
+	m_oldPosition = m_position;
+	
+	if (m_targetDistance >= 28.0f)
+	{
+		XMStoreFloat3A(&m_position, XMVectorAdd(XMLoadFloat3A(&m_position), XMLoadFloat3A(&m_moveDirection) * m_moveSpeed * deltaTime));
+	}
+
 	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
 
 	m_position.x = m_worldMatrix._41;
@@ -281,6 +287,11 @@ void CEnemyTank::Move(const float deltaTime)
 
 void CEnemyTank::Collide(const float deltaTime)
 {
+	if (!m_active)
+	{
+		return;
+	}
+
 	if (dynamic_cast<CBulletObject*>(m_collidedObject))
 	{
 		m_hp -= static_cast<CBulletObject*>(m_collidedObject)->GetDamge();
@@ -289,15 +300,18 @@ void CEnemyTank::Collide(const float deltaTime)
 			m_active = false;
 		}
 	}
+
+	m_position = m_oldPosition;
+	m_totalRotation = m_oldTotalRotation;
+
+	Rotate(deltaTime);
+	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
+	SetOOBB();
+
 }
 
 void CEnemyTank::Update(const float deltaTime)
 {
-	if (m_hp <= 0)
-	{
-		return;
-	}
-
 	if (m_static)
 	{
 		return;
@@ -327,7 +341,7 @@ void CEnemyTank::Update(const float deltaTime)
 	{
 		m_coolTime -= deltaTime;
 	}
-	//FireBullet();
+	FireBullet();
 
 	for (CBulletObject& bullet : m_bullet)
 	{

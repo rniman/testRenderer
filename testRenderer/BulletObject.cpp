@@ -4,7 +4,7 @@
 CBulletObject::CBulletObject()
 	: CGameObject()
 	, m_elipsed{ 0.0f }
-	, m_duration{ 5.0f }
+	, m_duration{ 3.0f }
 	, m_damage{ 10 }
 {
 	m_active = false;

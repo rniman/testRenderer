@@ -103,7 +103,7 @@ void CGameFramework::HandleInput()
 		{
 			if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
 			{
-				m_pScene->GetPlayer()->AddRotationAngle( 0.0f, cxMouseDelta, 0.0f);
+				m_pScene->GetPlayer()->AddRotationAngle( 0.0f, cxMouseDelta * m_gameTimer.GetDeltaTime(), 0.0f);
 			}
 			if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
 			{
@@ -118,8 +118,6 @@ void CGameFramework::HandleInput()
 	if (GetAsyncKeyState(VK_S) & 0x8000) m_keyDown |= DIR_BACKWARD;
 	if (GetAsyncKeyState(VK_D) & 0x8000) m_keyDown |= DIR_RIGHT;
 	if (GetAsyncKeyState(VK_A) & 0x8000) m_keyDown |= DIR_LEFT;
-	//if (GetAsyncKeyState(VK_Q) & 0x8000) m_keyDown |= DIR_UP;
-	//if (GetAsyncKeyState(VK_E) & 0x8000) m_keyDown |= DIR_DOWN;
 	
 	CTankPlayer* pTank = static_cast<CTankPlayer*>(m_pScene->GetPlayer());
 	if (GetAsyncKeyState(VK_Q) & 0x8000) pTank->GetTurret()->AddRotationAngle(0.0f, -m_gameTimer.GetDeltaTime() * pTank->GetTurret()->GetRotateSpeed(), 0.0f);
@@ -204,7 +202,6 @@ void CGameFramework::OnKeyBoardMessage(HWND hWnd, UINT message, WPARAM wParam, L
 		case VK_CONTROL:
 			break;
 		default:
-			//m_pScene->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
 			break;
 		}
 		break;
@@ -228,12 +225,14 @@ void CGameFramework::OnMouseMessage(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				m_lockOnObejct->SetColor(m_lockOnObjectOriginColor);
 				CGameObject::SetAllColor(m_lockOnObejct, m_lockOnObjectOriginColor);
 				m_lockOnObejct = nullptr;
+				((CTankPlayer*)(m_pScene->GetPlayer()))->SetPicking(nullptr);
 			}
 			m_lockOnObejct = m_pScene->GetPickedObject(LOWORD(lParam), HIWORD(lParam));
 			if (m_lockOnObejct)
 			{
 				m_lockOnObjectOriginColor = m_lockOnObejct->SetColor(RGB(255, 0, 0));
 				CGameObject::SetAllColor(m_lockOnObejct, RGB(255, 0, 0));
+				((CTankPlayer*)(m_pScene->GetPlayer()))->SetPicking(m_lockOnObejct);
 			}
 		}
 		break;

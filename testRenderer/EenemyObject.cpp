@@ -71,10 +71,10 @@ CEnemyTank::CEnemyTank()
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
 {
-	m_hp = 100;
+	m_hp = 50;
 
 	m_rotationSpeed = 90.0f;
-	m_moveSpeed = 5.0f;
+	m_moveSpeed = 10.0f;
 
 	m_turret = new CGameObject();
 	m_child = m_turret;
@@ -112,6 +112,11 @@ CGameObject* CEnemyTank::GetGun() const
 std::vector<CBulletObject>& CEnemyTank::GetBullets()
 {
 	return m_bullet;
+}
+
+void CEnemyTank::SetMove(bool bMove)
+{
+	m_bMove = bMove;
 }
 
 void CEnemyTank::SetTarget(CGameObject* target)
@@ -168,19 +173,69 @@ void CEnemyTank::FindTarget()
 		return;
 	}
 
-	XMVECTOR position = XMLoadFloat3A(&m_position);
-	
+	XMFLOAT3A pos = m_position;
+	pos.y = 1.0f;
+	XMVECTOR position = XMLoadFloat3A(&pos);	
+
 	XMFLOAT3A targetPosition = m_target->GetPosition();
 	XMVECTOR targetPos = XMLoadFloat3A(&targetPosition);
 
 	XMVECTOR target = targetPos - position;
-	XMVECTOR distange = XMVector3Length(target);
+	XMVECTOR distance = XMVector3Length(target);
 	XMVECTOR targetDirection = XMVector3Normalize(target);
 
-	m_targetDistance = XMVectorGetX(distange);
+	m_targetDistance = XMVectorGetX(distance);
 	XMStoreFloat3A(&m_moveDirection, targetDirection);
 
-	if (m_targetDistance >= 28.0f)
+	if (m_bMove)
+	{
+		if (m_targetDistance >= 120.0f)
+		{
+			m_bLockTarget = false;
+			return;
+		}
+	}
+	else
+	{
+		if (m_targetDistance >= 140.0f)
+		{
+			m_bLockTarget = false;
+			return;
+		}
+	}
+
+	if ((!m_bMove && m_targetDistance <= 140.0f) || m_targetDistance <= 60.0f || m_collidedObject)
+	{
+		XMFLOAT3A turretRotation = m_turret->GetTotalRotation();
+		XMMATRIX rotate = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&turretRotation) * XMConvertToRadians(1.0f));
+
+		XMVECTOR look = XMVector3TransformNormal(XMLoadFloat3A(&m_look), rotate);
+		XMVECTOR direction = XMLoadFloat3A(&m_moveDirection);
+
+		float angle = XMConvertToDegrees(XMVectorGetX(XMVector3AngleBetweenNormals(look, direction)));
+		if (XMVectorGetY(XMVector3Cross(look, direction)) < 0.0f)
+		{
+			angle = -angle;
+		}
+		m_remainTurretRotation = angle;
+
+		if (m_bMove)
+		{
+			m_bLockTarget = true;
+			return;
+		}
+
+		position = XMLoadFloat3A(&m_position);
+		targetPos = XMLoadFloat3A(&targetPosition);
+		XMFLOAT3A targetXZ = targetPosition;
+		targetXZ.y = 11.0f;
+
+		angle = -XMConvertToDegrees(XMVectorGetX(XMVector3AngleBetweenVectors(XMLoadFloat3A(&targetXZ) - position, targetPos - position)));
+
+		XMFLOAT3A gunRotation = m_gun->GetTotalRotation();
+		m_remainGunRotation = angle + gunRotation.x;
+	}
+	else if (m_targetDistance >= 60.0f)
 	{
 		XMVECTOR look = XMLoadFloat3A(&m_look);
 		XMVECTOR direction = XMLoadFloat3A(&m_moveDirection);
@@ -191,29 +246,16 @@ void CEnemyTank::FindTarget()
 		}
 		m_remainRotation = angle;
 		m_remainTurretRotation = -m_turret->GetTotalRotation().y;
-	}
-	else
-	{
-		XMFLOAT3A turretRotation = m_turret->GetTotalRotation();
-		XMMATRIX rotate = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&turretRotation) * XMConvertToRadians(1.0f));
-		
-		XMVECTOR look = XMVector3TransformNormal(XMLoadFloat3A(&m_look), rotate);
-		XMVECTOR direction = XMLoadFloat3A(&m_moveDirection);
 
-		float angle = XMConvertToDegrees(XMVectorGetX(XMVector3AngleBetweenNormals(look, direction)));
-		if (XMVectorGetY(XMVector3Cross(look, direction)) < 0.0f)
-		{
-			angle = -angle;
-		}
-		m_remainTurretRotation = angle;
 	}
+	m_bLockTarget = true;
 }
 
 void CEnemyTank::RotateToTarget(const float deltaTime)
 {
 	m_oldTotalRotation = m_totalRotation;
 
-	if (m_remainRotation)
+	if (m_remainRotation && m_bMove)
 	{
 		if (abs(m_remainRotation) <= m_rotationSpeed * deltaTime)
 		{
@@ -256,6 +298,26 @@ void CEnemyTank::RotateToTarget(const float deltaTime)
 			}
 		}
 	}
+	
+	if (m_remainGunRotation)
+	{
+		if (abs(m_remainGunRotation) <= deltaTime * m_rotationSpeed)
+		{
+			m_gun->AddRotationAngle(-m_remainGunRotation, 0.0f, 0.0f);
+			m_remainGunRotation = 0.0f;
+		}
+		else if (m_remainGunRotation >= 0.0f)
+		{
+			m_gun->AddRotationAngle(-deltaTime * m_rotationSpeed, 0.0f, 0.0f);
+			m_remainGunRotation -= deltaTime * m_rotationSpeed;
+		}
+		else if (m_remainGunRotation < 0.0f)
+		{
+			m_gun->AddRotationAngle(deltaTime * m_rotationSpeed, 0.0f, 0.0f);
+			m_remainGunRotation += deltaTime * m_rotationSpeed;
+
+		}
+	}
 }
 
 void CEnemyTank::Rotate(const float deltaTime)
@@ -273,7 +335,18 @@ void CEnemyTank::Move(const float deltaTime)
 {
 	m_oldPosition = m_position;
 	
-	if (m_targetDistance >= 28.0f)
+	if (m_targetDistance >= 120.0f || !m_bMove)
+	{
+		XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
+
+		m_position.x = m_worldMatrix._41;
+		m_position.y = m_worldMatrix._42;
+		m_position.z = m_worldMatrix._43;
+		
+		return;
+	}
+
+	if (m_targetDistance >= 60.0f)
 	{
 		XMStoreFloat3A(&m_position, XMVectorAdd(XMLoadFloat3A(&m_position), XMLoadFloat3A(&m_moveDirection) * m_moveSpeed * deltaTime));
 	}
@@ -299,6 +372,7 @@ void CEnemyTank::Collide(const float deltaTime)
 		{
 			m_active = false;
 		}
+		return;
 	}
 
 	m_position = m_oldPosition;
@@ -307,7 +381,6 @@ void CEnemyTank::Collide(const float deltaTime)
 	Rotate(deltaTime);
 	XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
 	SetOOBB();
-
 }
 
 void CEnemyTank::Update(const float deltaTime)
@@ -327,6 +400,7 @@ void CEnemyTank::Update(const float deltaTime)
 		XMStoreFloat4x4A(&m_worldMatrix, XMLoadFloat4x4A(&m_worldMatrix) * XMLoadFloat4x4A(&parentWorld));
 	}
 	SetOOBB();
+	
 
 	if (m_sibling)
 	{
@@ -341,7 +415,7 @@ void CEnemyTank::Update(const float deltaTime)
 	{
 		m_coolTime -= deltaTime;
 	}
-	FireBullet();
+	if(m_bLockTarget)FireBullet();
 
 	for (CBulletObject& bullet : m_bullet)
 	{
@@ -356,7 +430,7 @@ void CEnemyTank::Update(const float deltaTime)
 	m_searchTime -= deltaTime;
 	if (m_searchTime <= 0.0f)
 	{
-		m_searchTime = 2.0f;
+		m_searchTime = 1.5f;
 		//À§Ä¡ Å½»ö
 		FindTarget();
 	}

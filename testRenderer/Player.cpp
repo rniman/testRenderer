@@ -59,9 +59,18 @@ void CPlayer::SetInactiveMoveForce()
 
 void CPlayer::AddRotationAngle(const float pitch, const float yaw, const float roll)
 {
-	//CGameObject::AddRotationAngle(pitch, yaw, roll);
-	XMFLOAT3A angle = {pitch, yaw, roll};
+	XMFLOAT3A angle = {pitch, yaw * m_rotationSpeed, roll};
 	XMStoreFloat3A(&m_totalRotation, XMLoadFloat3A(&m_totalRotation) + XMLoadFloat3(&angle));
+
+	if (m_totalRotation.y > 180.0f)
+	{
+		m_totalRotation.y = -360.0f + m_totalRotation.y;
+	}
+	else if (m_totalRotation.y < -180.0f)
+	{
+		m_totalRotation.y = 360.0f + m_totalRotation.y;
+	}
+
 }
 
 void CPlayer::AddCameraRotation(const float pitch, const float yaw, const float roll)
@@ -73,44 +82,11 @@ void CPlayer::AddCameraRotation(const float pitch, const float yaw, const float 
 
 void CPlayer::Rotate(const float deltaTime)
 {
-	//회전 행렬 구하고
-	//XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYaw(XMConvertToRadians(m_pitch * m_rotationSpeed * deltaTime),	XMConvertToRadians(m_yaw * m_rotationSpeed * deltaTime),XMConvertToRadians(m_roll * m_rotationSpeed * deltaTime));
-
-	//XMStoreFloat4x4A(&m_worldMatrix, rotateMatrix * XMLoadFloat4x4A(&m_worldMatrix));
-
-	////기존 look에서 회전을 추가시킴
-	//XMVECTOR look = XMVectorSet(m_look.x, m_look.y, m_look.z, 0.0f);
-	//look = XMVector3TransformNormal(look, rotateMatrix);
-	//XMStoreFloat3A(&m_look, look);
-
-	//XMVECTOR up = XMVectorSet(m_up.x, m_up.y, m_up.z, 0.0f);
-	//up = XMVector3TransformNormal(up, rotateMatrix);
-	//XMStoreFloat3A(&m_up, up);
-
-	//XMVECTOR right = XMVectorSet(m_right.x, m_right.y, m_right.z, 0.0f);
-	//right = XMVector3TransformNormal(right, rotateMatrix);
-	//XMStoreFloat3A(&m_right, right);
-
-
-	////쿼터니언 사용
-	//XMVECTOR quaternion = XMQuaternionRotationRollPitchYaw(XMConvertToRadians(m_pitch * m_rotationSpeed * deltaTime), XMConvertToRadians(m_yaw * m_rotationSpeed * deltaTime), XMConvertToRadians(m_roll * m_rotationSpeed * deltaTime));
-
-	//XMStoreFloat4x4A(&m_worldMatrix, XMMatrixRotationQuaternion(quaternion) * XMLoadFloat4x4A(&m_worldMatrix));
-
-	//XMVECTOR look = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-	//XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	//XMVECTOR right = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
-
-	//XMStoreFloat3A(&m_look, XMVector3TransformNormal(look, XMLoadFloat4x4A(&m_worldMatrix)));
-	//XMStoreFloat3A(&m_up, XMVector3TransformNormal(up, XMLoadFloat4x4A(&m_worldMatrix)));
-	//XMStoreFloat3A(&m_right, XMVector3TransformNormal(right, XMLoadFloat4x4A(&m_worldMatrix)));
-
 	//회전행렬 구하고
-	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(m_rotationSpeed * deltaTime));
+	XMMATRIX rotateMatrix = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&m_totalRotation) * XMConvertToRadians(1.0f));
 
 	XMStoreFloat4x4A(&m_worldMatrix, rotateMatrix * XMMatrixTranslationFromVector(XMLoadFloat3A(&m_position)));
 
-	//월드 z축에 최종 회전을 추가
 	XMVECTOR look = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 	look = XMVector3TransformNormal(look, XMLoadFloat4x4A(&m_worldMatrix));
 	XMStoreFloat3A(&m_look, look);
@@ -210,11 +186,12 @@ CTankPlayer::CTankPlayer()
 	: CPlayer()
 	, m_cameraOffset{ 0.0f, 10.0f, -30.0f }
 	, m_bMainCamera{ true }
+	, m_pickingObject{ nullptr }
 	, m_turret{ nullptr }
 	, m_gun{ nullptr }
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
-	, m_hp{ 100 }
+	, m_hp{ 150 }
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_oldPosition = m_position;
@@ -241,11 +218,12 @@ CTankPlayer::CTankPlayer(const CCamera& camera)
 	: CPlayer(camera)
 	, m_cameraOffset{ 0.0f, 10.0f, -30.0f }
 	, m_bMainCamera{ true }
+	, m_pickingObject{ nullptr }
 	, m_turret{ nullptr }
 	, m_gun{ nullptr }
 	, m_bullet(MAX_BULLET)
 	, m_coolTime{ 0.0f }
-	, m_hp{ 100 }
+	, m_hp{ 150 }
 {
 	SetPosition(XMFLOAT3A(0.0f, 1.0f, 0.0f));
 	m_oldPosition = m_position;
@@ -284,9 +262,19 @@ CGameObject* CTankPlayer::GetGun() const
 	return m_gun;
 }
 
+UINT CTankPlayer::GetHp() const
+{
+	return m_hp;
+}
+
 std::vector<CBulletObject>& CTankPlayer::GetBullets()
 {
 	return m_bullet;
+}
+
+void CTankPlayer::SetPicking(CGameObject* pickingObject)
+{
+	m_pickingObject = pickingObject;
 }
 
 void CTankPlayer::AddRotationAngle(const float pitch, const float yaw, const float roll)
@@ -334,6 +322,42 @@ void CTankPlayer::FireBullet()
 	}
 }
 
+void CTankPlayer::AimTarget()
+{
+	m_remainTurretRotation = 0.0f;
+	m_remainGunRotation = 0.0f;
+
+	XMFLOAT3A targetPos = m_pickingObject->GetPosition();
+	XMFLOAT3A targetXZ = targetPos;
+	targetXZ.y = 1.0f;
+
+	XMVECTOR targetPosition = XMLoadFloat3A(&targetXZ);
+	XMVECTOR position = XMLoadFloat3A(&m_position);
+
+	XMVECTOR directionXZ = XMVector3Normalize(targetPosition - position);
+	
+	XMFLOAT3A turretRotation = m_turret->GetTotalRotation();
+	XMMATRIX rotate = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3A(&turretRotation) * XMConvertToRadians(1.0f));
+	XMVECTOR turretLook = XMVector3TransformNormal(XMLoadFloat3A(&m_look), rotate);
+
+	float angle = XMConvertToDegrees(XMVectorGetX(XMVector3AngleBetweenNormals(turretLook, directionXZ)));
+	if (XMVectorGetY(XMVector3Cross(turretLook, directionXZ)) < 0.0f)
+	{
+		angle = -angle;
+	}
+	m_remainTurretRotation = angle;
+
+	targetPosition = XMLoadFloat3A(&targetPos);
+	angle = XMConvertToDegrees(XMVectorGetX(XMVector3AngleBetweenVectors(XMLoadFloat3A(&targetXZ) - position, targetPosition - position)));
+	
+	XMFLOAT3A gunRotation = m_gun->GetTotalRotation();
+	m_remainGunRotation = angle + gunRotation.x;
+	if (abs(m_remainGunRotation) <= 1.0f)
+	{
+		m_remainGunRotation = 0.0f;
+	}
+}
+
 void CTankPlayer::HandleInput(DWORD direction)
 {
 	if (direction)
@@ -345,8 +369,7 @@ void CTankPlayer::HandleInput(DWORD direction)
 		if (direction & DIR_BACKWARD) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_look));
 		if (direction & DIR_RIGHT) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_right));
 		if (direction & DIR_LEFT) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_right));
-		//if (direction & DIR_UP) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) + XMLoadFloat3A(&m_up));
-		//if (direction & DIR_DOWN) XMStoreFloat3A(&m_moveDirection, XMLoadFloat3A(&m_moveDirection) - XMLoadFloat3A(&m_up));
+
 		XMStoreFloat3A(&m_moveDirection, XMVector3Normalize(XMLoadFloat3A(&m_moveDirection)));
 	}
 }
@@ -380,6 +403,32 @@ void CTankPlayer::Collide(const float deltaTime)
 
 void CTankPlayer::Rotate(const float deltaTime)
 {
+	if (abs(m_remainTurretRotation) <= m_turret->GetRotateSpeed() * deltaTime)
+	{
+		m_turret->AddRotationAngle(0.0f, m_remainTurretRotation, 0.0f);
+	}
+	else if (m_remainTurretRotation > 0.0f)
+	{
+		m_turret->AddRotationAngle(0.0f, deltaTime * m_turret->GetRotateSpeed(), 0.0f);
+	}
+	else if (m_remainTurretRotation < 0.0f)
+	{
+		m_turret->AddRotationAngle(0.0f, -deltaTime * m_turret->GetRotateSpeed(), 0.0f);	
+	}	
+
+	if (abs(m_remainGunRotation) <= deltaTime * m_gun->GetRotateSpeed())
+	{
+		m_gun->AddRotationAngle(m_remainGunRotation, 0.0f, 0.0f);
+	}
+	else if (m_remainGunRotation > 0.0f)
+	{
+		m_gun->AddRotationAngle(-deltaTime * m_gun->GetRotateSpeed(), 0.0f, 0.0f);
+	}
+	else if (m_remainGunRotation < 0.0f)
+	{
+		m_gun->AddRotationAngle(deltaTime * m_gun->GetRotateSpeed(), 0.0f, 0.0f);
+	}
+
 	CPlayer::Rotate(deltaTime);
 }
 
@@ -425,6 +474,23 @@ void CTankPlayer::Update(const float deltaTime)
 	if (!m_active)
 	{
 		return;
+	}
+
+	if (m_pickingObject)
+	{
+		if (!m_pickingObject->GetActive())
+		{
+			m_pickingObject = nullptr;
+		}
+		else
+		{
+			AimTarget();
+		}
+	}
+	else
+	{
+		m_remainTurretRotation = 0.0f;
+		m_remainGunRotation = 0.0f;
 	}
 
 	Rotate(deltaTime);

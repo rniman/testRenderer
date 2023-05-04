@@ -53,11 +53,15 @@ public:
 
 	CGameObject* GetTurret() const;
 	CGameObject* GetGun() const;
+	UINT GetHp() const;
 	std::vector<CBulletObject>& GetBullets();
+
+	void SetPicking(CGameObject* pickingObject);
 
 	virtual void AddRotationAngle(const float pitch, const float yaw, const float roll) override;
 	virtual void AddCameraRotation(const float pitch, const float yaw, const float roll) override;
 	void FireBullet();
+	void AimTarget();
 
 	virtual void Rotate(const float deltaTime) override;
 	virtual void Move(const float deltaTime) override;
@@ -72,8 +76,11 @@ private:
 	
 	XMFLOAT3A m_oldPosition;
 	XMFLOAT3A m_oldTotalRotation{ 0.0f, 0.0f,0.0f };
-	float m_elipsedRotation = 0.0f;
+	float m_elipsedRotation{ 0.0f };;
+	float m_remainTurretRotation{ 0.0f };
+	float m_remainGunRotation{ 0.0f };
 
+	CGameObject* m_pickingObject;
 	CGameObject* m_turret;
 	CGameObject* m_gun;
 

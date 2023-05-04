@@ -38,6 +38,7 @@ public:
 	CGameObject* GetGun() const;
 	std::vector<CBulletObject>& GetBullets();
 
+	void SetMove(bool bMove);
 	void SetTarget(CGameObject* target);
 
 	virtual void AddRotationAngle(const float pitch, const float yaw, const float roll) override;
@@ -53,19 +54,24 @@ public:
 	virtual void Render(HDC hDCFrameBuffer) override;
 
 private:
+	bool m_bMove{ true };
+
 	XMFLOAT3A m_look;
 
 	XMFLOAT3A m_oldPosition;
 	XMFLOAT3A m_oldTotalRotation{ 0.0f, 0.0f,0.0f };
-	float m_elipsedRotation = 0.0f;
-	float m_remainRotation = 0.0f;
-	float m_remainTurretRotation = 0.0f;
+	float m_elipsedRotation{ 0.0f };
+	float m_remainRotation{ 0.0f };
+	float m_remainTurretRotation{ 0.0f };
+	float m_remainGunRotation{ 0.0f };
 
 	float m_targetDistance;
 	XMFLOAT3A m_moveDirection;
 	float m_searchTime;
 
 	CGameObject* m_target;
+	bool m_bLockTarget{ false };
+
 	CGameObject* m_turret;
 	CGameObject* m_gun;
 
